@@ -4,7 +4,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 
 ---
 
-## 🚀 Quickstart (How to Run Locally)
+## Quickstart (How to Run Locally)
 
 ### Prerequisites
 - Python 3.11+
@@ -38,7 +38,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 
 ---
 
-## 🏛️ System Architecture
+## System Architecture
 
 ```
                                   ┌───────────────────────────────┐
@@ -69,7 +69,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 
 ---
 
-## 🎯 Technical Case Requirements Matrix
+## Technical Case Requirements Matrix
 
 | Requirement | Implementation Detail | Location |
 | :--- | :--- | :--- |
@@ -81,7 +81,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 
 ---
 
-## 🎙️ Technical Interview Talking Points
+## Technical Interview Talking Points
 
 ### 1. Model Choice & RAG Strategy
 * **LLM Engine:** Gemini 2.5 / 1.5 Flash via `google-genai` for fast inference and structured JSON schema compliance.

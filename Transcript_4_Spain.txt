@@ -1,9 +1,0 @@
-Project: European Robotic Surgery Market Intelligence
-Expert Name: Dr. Carlos Ruiz
-Market: Spain
-Role: Chief of Robotic Surgery, Madrid University Hospital
-
-[00:15] Interviewer: How would you describe current adoption of robotic surgery in Spain?
-[00:18] Dr. Carlos Ruiz: Adoption in Spain is expanding rapidly in top public teaching hospitals and leading private clinics, though regional health system budgets dictate adoption speed.
-[01:10] Interviewer: What are the main barriers to adoption?
-[01:15] Dr. Carlos Ruiz: Capital procurement approvals and specialized nurse training remain the top operational hurdles.
