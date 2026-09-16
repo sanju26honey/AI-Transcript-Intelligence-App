@@ -1,0 +1,583 @@
+/* Glassmorphism Surface Tokens & Ambient Gradient Background Canvas */
+:root {
+    --electric-violet: #7C3AED;
+    --emerald-green: #059669;
+    --bright-coral: #EA580C;
+    --frosted-glass: rgba(255, 255, 255, 0.75);
+}
+
+body {
+    font-family: 'Geist', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    color: #0f172a;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.font-mono {
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Ambient Gradient Background Canvas (Light Mode) */
+.ambient-canvas {
+    background: radial-gradient(circle at 10% 20%, rgba(224, 231, 255, 0.85) 0%, rgba(243, 232, 255, 0.7) 40%, rgba(207, 250, 254, 0.75) 80%);
+    background-attachment: fixed;
+    color: #0f172a;
+}
+
+/* Tight Search Pill Dock Wrapper (+8px blur around search bar only) */
+.search-pill-dock {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 20px 50px -10px rgba(124, 58, 237, 0.2), 0 8px 24px rgba(0, 0, 0, 0.06);
+}
+
+/* Glassmorphism Surface Tokens (Light Mode) */
+.glass-panel {
+    background: rgba(255, 255, 255, 0.82);
+    backdrop-filter: blur(24px) saturate(190%);
+    -webkit-backdrop-filter: blur(24px) saturate(190%);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 12px 36px -6px rgba(31, 38, 135, 0.08), 0 4px 16px rgba(0, 0, 0, 0.03);
+    border-radius: 24px;
+}
+
+/* Glass Floating Drawer Panel for RAG Popover */
+.glass-drawer-panel {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    border: 1px solid rgba(255, 255, 255, 0.95);
+    box-shadow: 0 24px 60px -10px rgba(124, 58, 237, 0.18), 0 12px 30px rgba(0, 0, 0, 0.08);
+    border-radius: 24px;
+}
+
+/* Sidebar Expert Scope Card (Light Mode) */
+.expert-scope-card {
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    color: #334155;
+}
+
+/* Info Pill (Light Mode) */
+.info-pill {
+    background: rgba(124, 58, 237, 0.08);
+    color: #7C3AED;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+/* Accordion Chevron Button (Light Mode) */
+.accordion-chevron-btn {
+    background-color: rgba(124, 58, 237, 0.08);
+    color: #7C3AED;
+    border: 1px solid rgba(124, 58, 237, 0.2);
+    transition: all 0.2s ease;
+}
+.accordion-chevron-btn:hover {
+    background-color: rgba(124, 58, 237, 0.16);
+}
+
+/* Sidebar Navigation Items */
+.sidebar-nav-item {
+    color: #475569;
+    background-color: transparent;
+    transition: all 0.2s ease;
+}
+
+.sidebar-nav-item:hover {
+    color: #0f172a;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+
+.sidebar-nav-item.active {
+    color: #ffffff !important;
+    background: linear-gradient(135deg, #7C3AED 0%, #6d28d9 100%) !important;
+    box-shadow: 0 6px 20px 0 rgba(124, 58, 237, 0.35) !important;
+}
+
+.tx-subtab {
+    color: #475569;
+    background-color: rgba(255, 255, 255, 0.75);
+    border: 1px solid rgba(255, 255, 255, 0.9);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.tx-subtab:hover {
+    color: #0f172a;
+    background-color: #ffffff;
+}
+
+.tx-subtab.active {
+    color: #ffffff !important;
+    background-color: #7C3AED !important;
+    border-color: #7C3AED !important;
+    box-shadow: 0 4px 14px rgba(124, 58, 237, 0.3) !important;
+}
+
+/* Elevated Expert Card (Light Mode) */
+.expert-card {
+    background: #ffffff;
+    border: 1px solid rgba(226, 232, 240, 0.95);
+    box-shadow: 0 6px 20px -2px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0,0,0,0.02);
+    border-radius: 20px;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.expert-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(124, 58, 237, 0.4);
+    box-shadow: 0 16px 36px -6px rgba(124, 58, 237, 0.15), 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+/* Quote Evidence Card Styling (Light Mode) */
+.quote-card-container {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 14px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.quote-card-container:hover {
+    background: #ffffff;
+    border-color: #7C3AED;
+    box-shadow: 0 8px 24px -4px rgba(124, 58, 237, 0.2);
+}
+
+/* Crisp, High-Contrast Quote Text Legibility in Light Mode */
+.quote-card-container .quote-text,
+.quote-text {
+    color: #1e293b !important; /* Rich deep charcoal slate for maximum legibility */
+    font-weight: 500;
+}
+
+.quote-card-container .quote-meta,
+.quote-meta {
+    color: #6D28D9 !important;
+    font-weight: 700;
+}
+
+.quote-card-container .quote-action-link,
+.quote-action-link {
+    color: #7C3AED !important;
+    font-weight: 700;
+}
+
+/* Soft Glass Dividers (Light Mode) */
+.accordion-divider {
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.expert-card-header {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.popover-header-divider {
+    border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.popover-citations-divider {
+    border-top: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+/* Country Pill Badge */
+.country-pill {
+    background-color: #f1f5f9;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+}
+
+/* Vector Evidence Citation Pill (Light Mode) */
+.citation-pill {
+    background-color: rgba(124, 58, 237, 0.08);
+    color: #6D28D9;
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    font-weight: 600;
+}
+.citation-pill:hover {
+    background-color: rgba(124, 58, 237, 0.16);
+}
+
+/* Transcript Segment Card */
+.segment-card {
+    transition: background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+    border-left: 3px solid transparent;
+}
+
+.segment-card:hover {
+    background-color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+/* Inline Clickable Timestamp Button inside RAG Search Results */
+.inline-timestamp-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: rgba(124, 58, 237, 0.12);
+    color: #7C3AED;
+    border: 1px solid rgba(124, 58, 237, 0.25);
+    padding: 1px 6px;
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin: 0 2px;
+}
+
+.inline-timestamp-link:hover {
+    background-color: #7C3AED;
+    color: #ffffff;
+    border-color: #7C3AED;
+    box-shadow: 0 2px 8px rgba(124, 58, 237, 0.4);
+}
+
+/* Accordion Chevron Rotation */
+.accordion-icon {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.accordion-icon.rotated {
+    transform: rotate(180deg);
+}
+
+/* Hide Scrollbar visually while allowing scroll */
+.no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+/* Keyframe Yellow Pulse Highlight Animation for Click-to-Scroll Payoff */
+@keyframes yellowFlash {
+    0% {
+        background-color: rgba(253, 224, 71, 0.5);
+        border-left-color: #eab308;
+        transform: scale(1.01);
+    }
+    50% {
+        background-color: rgba(253, 224, 71, 0.3);
+        border-left-color: #eab308;
+    }
+    100% {
+        background-color: transparent;
+        border-left-color: transparent;
+        transform: scale(1);
+    }
+}
+
+.highlight-pulse {
+    animation: yellowFlash 2.5s ease-out;
+    border-left: 4px solid #eab308 !important;
+}
+
+/* Formatted Markdown Typography inside Popover */
+.prose-glass {
+    color: #1e293b;
+}
+
+.prose-glass ul {
+    list-style-type: disc;
+    padding-left: 1.25rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.prose-glass li {
+    margin-top: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.prose-glass strong {
+    color: #7C3AED;
+    font-weight: 600;
+}
+
+.prose-glass p {
+    margin-bottom: 0.75rem;
+}
+
+/* Custom Scrollbar (Light Mode) */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: rgba(241, 245, 249, 0.5);
+}
+::-webkit-scrollbar-thumb {
+    background: rgba(148, 163, 184, 0.5);
+    border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(100, 116, 139, 0.8);
+}
+
+/* ==========================================================================
+   Professional Hand-Crafted Dark Mode (.dark-theme - GitHub / Linear Palette)
+   ========================================================================== */
+
+body.dark-theme {
+    background: #0d1117 !important; /* Warm Charcoal Canvas */
+    color: #c9d1d9 !important;
+}
+
+body.dark-theme .search-pill-dock {
+    background: rgba(22, 27, 34, 0.92) !important;
+    border: 1.5px solid #30363d !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8) !important;
+}
+
+body.dark-theme .glass-panel {
+    background: rgba(22, 27, 34, 0.88) !important;
+    border: 1px solid #21262d !important;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+body.dark-theme .glass-drawer-panel {
+    background: #161b22 !important;
+    border: 1px solid #30363d !important;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-theme .glass-drawer {
+    background: #161b22 !important;
+    border: 1px solid #30363d !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.5) !important;
+}
+
+body.dark-theme input {
+    color: #f0f6fc !important;
+}
+
+body.dark-theme input.bg-transparent,
+body.dark-theme .search-pill-dock input {
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+body.dark-theme input::placeholder {
+    color: #8b949e !important;
+}
+
+body.dark-theme .expert-scope-card {
+    background: #161b22 !important;
+    border: 1px solid #21262d !important;
+    color: #8b949e !important;
+}
+
+body.dark-theme .info-pill {
+    background: rgba(56, 139, 253, 0.1) !important;
+    color: #58a6ff !important;
+    border: 1px solid rgba(56, 139, 253, 0.25) !important;
+}
+
+body.dark-theme .accordion-chevron-btn {
+    background-color: #21262d !important;
+    color: #58a6ff !important;
+    border: 1px solid #30363d !important;
+}
+body.dark-theme .accordion-chevron-btn:hover {
+    background-color: #30363d !important;
+}
+
+body.dark-theme .sidebar-nav-item {
+    color: #8b949e;
+}
+
+body.dark-theme .sidebar-nav-item:hover {
+    color: #f0f6fc;
+    background-color: #21262d;
+}
+
+body.dark-theme .sidebar-nav-item.active {
+    background: linear-gradient(135deg, #1f6feb 0%, #238636 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 16px rgba(31, 111, 235, 0.3) !important;
+}
+
+body.dark-theme .expert-card {
+    background: #161b22 !important;
+    border: 1px solid #21262d !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-theme .expert-card:hover {
+    border-color: #388bfd !important;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5) !important;
+    transform: translateY(-3px);
+}
+
+body.dark-theme .quote-card-container {
+    background: #0d1117 !important;
+    border: 1px solid #21262d !important;
+}
+
+body.dark-theme .quote-card-container:hover {
+    background: #1c2128 !important;
+    border-color: #388bfd !important;
+}
+
+body.dark-theme .quote-card-container .quote-text,
+body.dark-theme .quote-text {
+    color: #e2e8f0 !important; /* Soft white slate for dark mode readability */
+}
+
+body.dark-theme .quote-card-container .quote-meta,
+body.dark-theme .quote-meta {
+    color: #58a6ff !important;
+}
+
+body.dark-theme .quote-card-container .quote-action-link,
+body.dark-theme .quote-action-link {
+    color: #58a6ff !important;
+}
+
+body.dark-theme .accordion-divider {
+    border-top: 1px solid #21262d !important;
+}
+
+body.dark-theme .expert-card-header {
+    border-bottom: 1px solid #21262d !important;
+}
+
+body.dark-theme .popover-header-divider {
+    border-bottom: 1px solid #30363d !important;
+}
+
+body.dark-theme .popover-citations-divider {
+    border-top: 1px solid #30363d !important;
+}
+
+body.dark-theme .country-pill {
+    background-color: #21262d !important;
+    color: #8b949e !important;
+    border-color: #30363d !important;
+}
+
+body.dark-theme .citation-pill {
+    background-color: #21262d !important;
+    color: #58a6ff !important;
+    border: 1px solid #30363d !important;
+}
+body.dark-theme .citation-pill:hover {
+    background-color: #30363d !important;
+    border-color: #58a6ff !important;
+}
+
+body.dark-theme .tx-subtab {
+    background-color: #161b22;
+    border-color: #21262d;
+    color: #8b949e;
+}
+
+body.dark-theme .tx-subtab:hover {
+    color: #f0f6fc;
+    background-color: #21262d;
+}
+
+body.dark-theme .tx-subtab.active {
+    background-color: #1f6feb !important;
+    border-color: #1f6feb !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .segment-card {
+    background-color: #161b22 !important;
+    border-color: #21262d !important;
+}
+
+body.dark-theme .segment-card:hover {
+    background-color: #1c2128 !important;
+}
+
+/* Linear / GitHub Dark Mode Text Hierarchy */
+body.dark-theme h1, 
+body.dark-theme h2, 
+body.dark-theme h3, 
+body.dark-theme h4 {
+    color: #f0f6fc !important; /* Soft Off-White */
+}
+
+body.dark-theme p {
+    color: #c9d1d9 !important; /* Readable Warm Slate */
+}
+
+body.dark-theme span {
+    color: #8b949e;
+}
+
+body.dark-theme .text-slate-900, 
+body.dark-theme .text-slate-800 {
+    color: #f0f6fc !important;
+}
+
+body.dark-theme .text-slate-700 {
+    color: #c9d1d9 !important;
+}
+
+body.dark-theme .text-slate-600, 
+body.dark-theme .text-slate-500 {
+    color: #8b949e !important;
+}
+
+body.dark-theme .prose-glass {
+    color: #c9d1d9 !important;
+}
+
+body.dark-theme .prose-glass strong {
+    color: #58a6ff !important;
+}
+
+body.dark-theme .inline-timestamp-link {
+    background-color: rgba(56, 139, 253, 0.15);
+    color: #58a6ff;
+    border-color: rgba(56, 139, 253, 0.3);
+}
+
+body.dark-theme .inline-timestamp-link:hover {
+    background-color: #1f6feb;
+    color: #ffffff;
+}
+
+/* Custom Scrollbar Dark Mode */
+body.dark-theme ::-webkit-scrollbar-track {
+    background: #0d1117;
+}
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: #21262d;
+    border-radius: 4px;
+}
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: #30363d;
+}
+
+/* Upload Dropzone Styling */
+.upload-dropzone {
+    background: rgba(124, 58, 237, 0.03);
+    transition: all 0.2s ease;
+}
+
+.upload-dropzone:hover,
+.upload-dropzone.drag-over {
+    background: rgba(124, 58, 237, 0.08);
+    border-color: #7C3AED !important;
+}
+
+body.dark-theme .upload-dropzone {
+    background: rgba(22, 27, 34, 0.6);
+    border-color: #30363d !important;
+}
+
+body.dark-theme .upload-dropzone:hover,
+body.dark-theme .upload-dropzone.drag-over {
+    background: rgba(56, 139, 253, 0.1);
+    border-color: #388bfd !important;
+}

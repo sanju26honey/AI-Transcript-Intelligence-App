@@ -1,0 +1,6 @@
+flask>=3.0.0
+pydantic>=2.5.0
+chromadb>=0.4.20
+google-genai>=0.1.1
+python-dotenv>=1.0.0
+pytest>=7.0.0

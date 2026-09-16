@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hasamex Intelligence – European Robotic Surgery</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        violet: {
+                            600: '#7C3AED',
+                            700: '#6D28D9'
+                        },
+                        emerald: {
+                            600: '#059669'
+                        },
+                        coral: {
+                            600: '#EA580C'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Geist', 'Inter', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Geist & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Marked.js for Rendering Markdown -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body class="ambient-canvas min-h-screen font-sans antialiased flex flex-row selection:bg-violet-600 selection:text-white">
+
+    <!-- LEFT GLASS SIDEBAR CONTROLS -->
+    <aside class="w-64 glass-panel m-4 mr-0 border flex flex-col justify-between shrink-0 h-[calc(100vh-2rem)] sticky top-4 z-30 shadow-xl">
+        <div class="p-5 space-y-6 overflow-y-auto">
+            <!-- App Brand & Logo -->
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-600/35 font-bold text-white text-xl">
+                    <i class="fa-solid fa-brain"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-base text-slate-900 leading-tight">Hasamex AI</h1>
+                    <p class="text-[11px] text-slate-500 font-medium">Robotic Surgery Market</p>
+                </div>
+            </div>
+
+            <!-- Navigation Controls -->
+            <nav class="space-y-2 pt-2">
+                <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Main Controls</div>
+                
+                <button id="tab-btn-guide" onclick="switchTab('guide')" class="sidebar-nav-item active w-full px-3.5 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-list-check text-sm w-4 text-center"></i>
+                    <span>Interview Guide</span>
+                </button>
+
+                <button id="tab-btn-themes" onclick="switchTab('themes')" class="sidebar-nav-item w-full px-3.5 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-diagram-project text-sm w-4 text-center"></i>
+                    <span>Themes & Disagreements</span>
+                </button>
+
+                <button id="tab-btn-viewer" onclick="switchTab('viewer')" class="sidebar-nav-item w-full px-3.5 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition">
+                    <i class="fa-solid fa-file-lines text-sm w-4 text-center"></i>
+                    <span>Transcript Viewer</span>
+                </button>
+
+                <button onclick="openUploadModal()" class="w-full mt-2 px-3.5 py-2.5 rounded-xl text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-600/20 flex items-center justify-center gap-2 transition">
+                    <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
+                    <span>Upload Transcript</span>
+                </button>
+            </nav>
+
+            <!-- Case Pack Summary Info -->
+            <div class="expert-scope-card p-4 rounded-2xl border space-y-2 text-xs shadow-xs">
+                <div class="font-bold flex items-center gap-1.5 text-slate-800">
+                    <i class="fa-solid fa-earth-europe text-emerald-600"></i> Expert Scope
+                </div>
+                <div id="expert-scope-list" class="text-[11px] space-y-1.5 font-medium opacity-90">
+                    <!-- Loaded dynamically via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Sidebar Footer: Dark Mode Toggle Switch -->
+        <div class="p-4 border-t border-slate-200/60">
+            <button onclick="toggleDarkMode()" id="theme-toggle-btn" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-between transition bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200">
+                <span class="flex items-center gap-2">
+                    <i id="theme-toggle-icon" class="fa-solid fa-moon text-violet-600"></i>
+                    <span id="theme-toggle-text">Dark Mode</span>
+                </span>
+                <i class="fa-solid fa-circle-half-stroke text-[10px] text-slate-400"></i>
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT CANVAS -->
+    <div class="flex-1 flex flex-col min-w-0 pb-36">
+
+        <!-- Main Workspace -->
+        <main class="p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8 flex-1">
+
+            <!-- TAB 1: INTERVIEW GUIDE MATRIX -->
+            <section id="view-guide" class="tab-view space-y-8">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Interview Guide Matrix</h3>
+                    <p class="text-xs text-slate-500 font-medium">Executive synthesized takeaways with verbatim extracted transcript quotes.</p>
+                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info"></i> Click any verbatim quote block to scroll to exact transcript timestamp
+                    </p>
+                </div>
+
+                <div id="guide-questions-container" class="space-y-6">
+                    <!-- Loaded dynamically as collapsible accordions via JS -->
+                </div>
+            </section>
+
+            <!-- TAB 2: THEMES & DISAGREEMENTS -->
+            <section id="view-themes" class="tab-view hidden space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Cross-Call Synthesis & Disagreements</h3>
+                    <p class="text-xs text-slate-500 font-medium">Consensus trends vs market disagreements across European expert calls.</p>
+                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info"></i> Click any quote card to jump to transcript timestamp
+                    </p>
+                </div>
+
+                <div id="themes-container" class="space-y-6">
+                    <!-- Loaded dynamically as collapsible accordions via JS -->
+                </div>
+            </section>
+
+            <!-- TAB 3: TRANSCRIPT VIEWER -->
+            <section id="view-viewer" class="tab-view hidden space-y-6">
+                <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 shadow-sm">
+                    <div class="flex flex-wrap gap-2" id="transcript-subtabs-container">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                    <div class="relative flex-1 max-w-xs">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+                        <input type="text" id="transcript-search" oninput="filterTranscriptSegments()" placeholder="Search transcript dialogue..." class="w-full text-xs rounded-xl pl-8 pr-3 py-2 font-medium">
+                    </div>
+                </div>
+
+                <!-- Transcript Reader Container -->
+                <div class="glass-panel p-6 max-h-[72vh] overflow-y-auto space-y-4 shadow-md" id="transcript-reader">
+                    <!-- Segments loaded dynamically -->
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- RAG CHAT BACKDROP MODAL OVERLAY (Glassmorphism Blur) -->
+    <div id="chat-backdrop" onclick="closeChatPopover()" class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-md z-40 transition-all"></div>
+
+    <!-- FLOATING RAG CHAT BOT BAR (Tightly Blurred Pill Wrapper) -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-none">
+        
+        <!-- RAG Chat Popover Panel (No Visible Scrollbar) -->
+        <div id="chat-popover" class="hidden mb-4 glass-drawer-panel p-6 max-h-[60vh] overflow-y-auto shadow-2xl no-scrollbar pointer-events-auto">
+            <div class="flex items-center justify-between popover-header-divider pb-3 mb-3">
+                <div class="flex items-center gap-2 text-violet-600 font-bold text-sm">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span id="chat-popover-title">Cross-Transcript RAG Synthesis</span>
+                </div>
+                <button onclick="closeChatPopover()" class="text-slate-400 hover:text-slate-700 text-xs px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <!-- Rendered Formatted Markdown Body (Executive Takeaway) -->
+            <div id="chat-popover-body" class="text-sm leading-relaxed space-y-3 prose-glass font-medium">
+                <!-- Markdown parsed content inserted here -->
+            </div>
+            <div id="chat-popover-citations" class="mt-4 pt-3 popover-citations-divider">
+                <div class="text-xs font-bold text-slate-500 mb-2 uppercase tracking-wider">Retrieved Vector Evidence Quotes:</div>
+                <div id="chat-citations-list" class="space-y-2"></div>
+            </div>
+        </div>
+
+        <!-- Tight Pill Dock Wrapper (+8px blur around search bar only) -->
+        <div class="p-2 rounded-full search-pill-dock pointer-events-auto shadow-2xl flex items-center">
+            <form id="chat-form" onsubmit="handleChatSubmit(event)" class="w-full flex items-center gap-3 px-4 py-1.5">
+                <i class="fa-solid fa-sparkles text-violet-600 text-base shrink-0"></i>
+                <input type="text" id="chat-input" placeholder="Ask anything across transcripts (RAG vector search)..." class="flex-1 bg-transparent text-sm font-semibold placeholder-slate-400 focus:outline-none">
+                <button type="submit" id="chat-submit-btn" class="bg-violet-600 hover:bg-violet-700 text-white rounded-full w-9 h-9 flex items-center justify-center transition shadow-md shadow-violet-600/40 shrink-0">
+                    <i class="fa-solid fa-arrow-up text-sm"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- UPLOAD TRANSCRIPT MODAL OVERLAY -->
+    <div id="upload-modal" class="hidden fixed inset-0 bg-slate-950/60 backdrop-blur-md z-50 flex items-center justify-center p-4 transition-all">
+        <div class="glass-panel max-w-md w-full p-6 space-y-5 shadow-2xl relative">
+            <div class="flex items-center justify-between border-b border-slate-200/60 dark:border-neutral-800 pb-3">
+                <div class="flex items-center gap-2 text-violet-600 dark:text-violet-400 font-bold text-sm">
+                    <i class="fa-solid fa-file-arrow-up"></i>
+                    <span>Upload Expert Call Transcript</span>
+                </div>
+                <button onclick="closeUploadModal()" class="text-slate-400 hover:text-slate-700 text-xs px-2 py-1 rounded-md">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            
+            <!-- Drag and Drop Zone -->
+            <div id="upload-dropzone" 
+                 onclick="document.getElementById('transcript-file-input').click()"
+                 ondragover="handleDragOver(event)" 
+                 ondragleave="handleDragLeave(event)" 
+                 ondrop="handleFileDrop(event)"
+                 class="upload-dropzone border-2 border-dashed border-violet-600/30 hover:border-violet-600/60 rounded-2xl p-6 text-center cursor-pointer transition space-y-3">
+                <div class="w-12 h-12 rounded-full bg-violet-600/10 text-violet-600 mx-auto flex items-center justify-center text-xl">
+                    <i class="fa-solid fa-cloud-arrow-up"></i>
+                </div>
+                <div>
+                    <p class="text-xs font-bold text-slate-800 dark:text-slate-200" id="upload-dropzone-title">Click to browse or drag & drop transcript .txt</p>
+                    <p class="text-[11px] text-slate-400 font-medium">Standard Hasamex transcript format</p>
+                </div>
+                <input type="file" id="transcript-file-input" accept=".txt" onchange="handleFileSelect(event)" class="hidden">
+            </div>
+
+            <!-- Selected File Info & Status Message -->
+            <div id="upload-status" class="hidden text-xs font-medium p-3 rounded-xl"></div>
+
+            <div class="flex justify-end gap-3 pt-2">
+                <button onclick="closeUploadModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-600 dark:text-slate-400 bg-slate-100 dark:bg-neutral-800 border border-slate-200 dark:border-neutral-700">
+                    Cancel
+                </button>
+                <button id="upload-submit-btn" onclick="submitTranscriptUpload()" disabled class="px-5 py-2 rounded-xl text-xs font-bold text-white bg-violet-600 hover:bg-violet-700 disabled:opacity-50 transition shadow-md shadow-violet-600/30">
+                    Upload & Index
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Application JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
