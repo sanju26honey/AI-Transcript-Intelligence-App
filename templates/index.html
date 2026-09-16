@@ -45,11 +45,11 @@
 <body class="ambient-canvas min-h-screen font-sans antialiased flex flex-row selection:bg-violet-600 selection:text-white">
 
     <!-- LEFT GLASS SIDEBAR CONTROLS -->
-    <aside class="w-64 glass-panel m-4 mr-0 border flex flex-col justify-between shrink-0 h-[calc(100vh-2rem)] sticky top-4 z-30 shadow-xl">
+    <aside class="w-72 glass-panel m-4 mr-0 border flex flex-col justify-between shrink-0 h-[calc(100vh-2rem)] sticky top-4 z-30 shadow-xl">
         <div class="p-6 space-y-6 overflow-y-auto">
             <!-- App Brand & Logo -->
             <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-600/35 font-bold text-white text-xl">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-600/35 font-bold text-white text-xl shrink-0">
                     <i class="fa-solid fa-brain"></i>
                 </div>
                 <div>
@@ -63,23 +63,23 @@
                 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Main Controls</div>
                 
                 <button id="tab-btn-guide" onclick="switchTab('guide')" class="sidebar-nav-item active w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3.5 transition">
-                    <i class="fa-solid fa-list-check text-sm w-4 text-center"></i>
-                    <span>Interview Guide</span>
+                    <i class="fa-solid fa-list-check text-sm w-4 text-center shrink-0"></i>
+                    <span class="whitespace-nowrap">Interview Guide</span>
                 </button>
 
                 <button id="tab-btn-themes" onclick="switchTab('themes')" class="sidebar-nav-item w-full px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3.5 transition">
-                    <i class="fa-solid fa-diagram-project text-sm w-4 text-center"></i>
-                    <span>Themes & Disagreements</span>
+                    <i class="fa-solid fa-diagram-project text-sm w-4 text-center shrink-0"></i>
+                    <span class="whitespace-nowrap">Themes & Disagreements</span>
                 </button>
 
                 <button id="tab-btn-viewer" onclick="switchTab('viewer')" class="sidebar-nav-item w-full px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3.5 transition">
-                    <i class="fa-solid fa-file-lines text-sm w-4 text-center"></i>
-                    <span>Transcript Viewer</span>
+                    <i class="fa-solid fa-file-lines text-sm w-4 text-center shrink-0"></i>
+                    <span class="whitespace-nowrap">Transcript Viewer</span>
                 </button>
 
                 <button onclick="openUploadModal()" class="w-full mt-3 px-4 py-3 rounded-xl text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-600/20 flex items-center justify-center gap-2.5 transition">
-                    <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
-                    <span>Upload Transcript</span>
+                    <i class="fa-solid fa-cloud-arrow-up text-sm shrink-0"></i>
+                    <span class="whitespace-nowrap">Upload Transcript</span>
                 </button>
             </nav>
 

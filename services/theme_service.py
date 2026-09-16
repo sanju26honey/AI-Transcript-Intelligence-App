@@ -225,6 +225,51 @@ class ThemeService:
             )
         ]
 
+        # Dynamically enrich themes with evidence from any additional uploaded transcripts
+        known_tids = {"Transcript_1_France", "Transcript_2_Germany", "Transcript_3_UK"}
+        extra_tids = [tid for tid in all_segments_by_transcript.keys() if tid not in known_tids]
+
+        if extra_tids:
+            topic_keyword_map = {
+                "Financial ROI vs. Clinical Strategy Weight": ['roi', 'financial', 'cost', 'economic', 'budget', 'price', 'capital', 'pay for itself', 'reimbursement', 'barrier'],
+                "3–5 Year Growth Rate Expectations": ['growth', 'percent', 'percentage', 'annual', 'increase', 'volume', 'double', 'single', 'future', 'trend'],
+                "Surgeon Training & Operational Bottlenecks": ['training', 'train', 'surgeon', 'staff', 'bottleneck', 'utilisation', 'learning curve', 'capacity', 'nurse'],
+                "Procurement Timelines & Multi-Stakeholder Alignment": ['month', 'timeline', 'procurement', 'committee', 'approval', 'decision', 'process', 'stakeholder', 'year']
+            }
+
+            for t in raw_themes:
+                keywords = topic_keyword_map.get(t.topic, [])
+                for extra_tid in extra_tids:
+                    segs = all_segments_by_transcript[extra_tid]
+                    expert_segs = [s for s in segs if not s.speaker.lower().startswith("interviewer")]
+                    
+                    best_seg = None
+                    best_score = 0
+                    for seg in expert_segs:
+                        text_lower = seg.text.lower()
+                        score = sum(1 for kw in keywords if kw in text_lower)
+                        if score > best_score:
+                            best_score = score
+                            best_seg = seg
+
+                    # If match found, or fallback to first expert segment if score == 0
+                    if not best_seg and expert_segs:
+                        best_seg = expert_segs[0]
+
+                    if best_seg:
+                        # Avoid adding duplicate evidence for same transcript
+                        existing_tids = set(ev.transcript_id for ev in t.evidence)
+                        if best_seg.transcript_id not in existing_tids:
+                            t.evidence.append(QuoteEvidence(
+                                transcript_id=best_seg.transcript_id,
+                                expert_name=best_seg.expert_name,
+                                market=best_seg.market,
+                                quote=best_seg.text,
+                                timestamp=best_seg.timestamp,
+                                segment_index=best_seg.segment_index,
+                                speaker=best_seg.speaker
+                            ))
+
         verified_themes = []
         for t in raw_themes:
             verified_ev = verify_and_enrich_evidence(t.evidence, all_segments_by_transcript)

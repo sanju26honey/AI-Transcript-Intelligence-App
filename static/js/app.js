@@ -133,6 +133,17 @@ function renderGuideAnswers() {
     };
 
     container.innerHTML = GUIDE_ANSWERS_DATA.map((qItem, qIdx) => {
+        const count = qItem.answers_by_expert.length;
+        const isScrollable = count > 3;
+
+        const gridOrScrollClass = isScrollable
+            ? 'flex overflow-x-auto gap-6 pt-2 pb-3 custom-h-scroll max-w-full'
+            : 'grid grid-cols-1 md:grid-cols-3 gap-6 pt-2';
+
+        const cardWidthClass = isScrollable
+            ? 'w-[320px] md:w-[350px] shrink-0'
+            : '';
+
         const expertCards = qItem.answers_by_expert.map(ans => {
             const role = roleMap[ans.expert_name] || 'Expert Specialist';
             const countryBadge = ans.market;
@@ -160,7 +171,7 @@ function renderGuideAnswers() {
             `).join('');
 
             return `
-                <div class="expert-card p-6 md:p-7 flex flex-col justify-between space-y-5">
+                <div class="expert-card p-6 md:p-7 flex flex-col justify-between space-y-5 ${cardWidthClass}">
                     <div>
                         <div class="flex items-start justify-between mb-3.5 expert-card-header pb-3.5">
                             <div>
@@ -194,7 +205,7 @@ function renderGuideAnswers() {
                         <h3 class="font-bold text-base md:text-lg leading-snug tracking-tight">${qItem.question}</h3>
                     </div>
                     <div class="flex items-center gap-3">
-                        <span class="text-xs text-slate-400 font-medium hidden sm:inline">3 Expert Responses</span>
+                        <span class="text-xs text-slate-400 font-medium hidden sm:inline">${count} Expert Responses</span>
                         <div class="w-8 h-8 rounded-full accordion-chevron-btn flex items-center justify-center shrink-0">
                             <i id="acc-icon-q-${qIdx}" class="fa-solid fa-chevron-down accordion-icon text-xs ${iconRotated}"></i>
                         </div>
@@ -210,8 +221,8 @@ function renderGuideAnswers() {
                             </p>
                         </div>
 
-                        <!-- Per-Expert Cards Grid -->
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
+                        <!-- Per-Expert Cards Container (Grid if <=3, Scrollable Row if >3) -->
+                        <div class="${gridOrScrollClass}">
                             ${expertCards}
                         </div>
                     </div>
@@ -449,9 +460,9 @@ function renderExpertScopeSidebar() {
     container.innerHTML = keys.map(tid => {
         const meta = TRANSCRIPTS_DATA[tid].metadata;
         return `
-            <div class="flex justify-between border-b border-slate-200/50 dark:border-neutral-800 pb-1">
-                <span>${meta.market}:</span> 
-                <span class="font-mono font-semibold">${meta.expert_name}</span>
+            <div class="flex items-center justify-between border-b border-slate-200/50 dark:border-neutral-800 pb-1.5 pt-0.5 text-[11px] gap-2">
+                <span class="font-medium text-slate-600 dark:text-slate-400 shrink-0 whitespace-nowrap">${meta.market}:</span> 
+                <span class="font-semibold text-slate-800 dark:text-slate-200 truncate text-right">${meta.expert_name}</span>
             </div>
         `;
     }).join('');

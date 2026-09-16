@@ -73,7 +73,7 @@ class ChatService:
                 timestamp=seg.timestamp,
                 segment_index=seg.segment_index,
                 speaker=seg.speaker
-            ) for seg in retrieved_segs[:3]
+            ) for seg in retrieved_segs
         ]
 
         verified_ev = verify_and_enrich_evidence(evidence_list, all_segments_by_transcript)

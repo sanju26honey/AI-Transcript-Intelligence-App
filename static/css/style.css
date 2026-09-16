@@ -581,3 +581,31 @@ body.dark-theme .upload-dropzone.drag-over {
     background: rgba(56, 139, 253, 0.1);
     border-color: #388bfd !important;
 }
+
+/* Custom Horizontal Scrollbar for Scrollable Expert Cards */
+.custom-h-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(124, 58, 237, 0.35) transparent;
+}
+.custom-h-scroll::-webkit-scrollbar {
+    height: 6px;
+}
+.custom-h-scroll::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-h-scroll::-webkit-scrollbar-thumb {
+    background: rgba(124, 58, 237, 0.3);
+    border-radius: 4px;
+}
+.custom-h-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(124, 58, 237, 0.6);
+}
+body.dark-theme .custom-h-scroll {
+    scrollbar-color: rgba(56, 139, 253, 0.4) transparent;
+}
+body.dark-theme .custom-h-scroll::-webkit-scrollbar-thumb {
+    background: rgba(56, 139, 253, 0.3);
+}
+body.dark-theme .custom-h-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(56, 139, 253, 0.6);
+}
