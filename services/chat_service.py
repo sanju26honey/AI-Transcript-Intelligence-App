@@ -35,7 +35,9 @@ class ChatService:
         all_segments_by_transcript: Dict[str, List[TranscriptSegment]]
     ) -> ChatMessage:
         """Answers free-form user question across all transcripts using vector search (RAG)."""
-        raw_retrieved = self.rag_service.query_segments(question, top_k=6)
+        raw_retrieved = self.rag_service.query_segments_per_market(question, top_k_per_market=1)
+        if not raw_retrieved:
+            raw_retrieved = self.rag_service.query_segments(question, top_k=6)
 
         if not raw_retrieved:
             return ChatMessage(

@@ -47,18 +47,18 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
                                   └──────────────┬────────────────┘
                                                  │ REST API Calls
                                                  ▼
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                   Flask REST API Layer                                 │
-│          GET /api/transcripts │ GET /api/guide-answers │ GET /api/themes │ POST /api/chat│
-└───────┬───────────────────────────────┬───────────────────────────────┬────────────────┘
-        │                               │                               │
-        ▼                               ▼                               ▼
-┌──────────────┐             ┌─────────────────────┐          ┌───────────────────┐
-│ GuideService │             │  TranscriptRAGService│          │   ThemeService    │
-│ (Per-Expert) │             │ (ChromaDB Vector DB)│          │(Cross-Call Synt.) │
-└───────┬──────┘             └──────────┬──────────┘          └─────────┬─────────┘
-        │                               │                               │
-        └───────────────────────────────┼───────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────────────────────┐
+│                                          Flask REST API Layer                                          │
+│ GET /api/transcripts │ GET /api/guide-answers │ GET /api/themes │ POST /api/chat │ POST /api/upload    │
+└───────┬───────────────────────────────┬───────────────────────────────┬───────────────────┬────────────┘
+        │                               │                               │                   │
+        ▼                               ▼                               ▼                   ▼
+┌──────────────┐             ┌─────────────────────┐          ┌───────────────────┐ ┌────────────────────┐
+│ GuideService │             │  TranscriptRAGService│          │   ThemeService    │ │ Dynamic Upload     │
+│ (Per-Expert) │             │ (ChromaDB Vector DB)│          │(Cross-Call Synt.) │ │ File Parser        │
+└───────┬──────┘             └──────────┬──────────┘          └─────────┬─────────┘ └─────────┬──────────┘
+        │                               │                               │                     │
+        └───────────────────────────────┼───────────────────────────────┴─────────────────────┘
                                         │
                                         ▼
                          ┌─────────────────────────────┐
@@ -73,11 +73,11 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 
 | Requirement | Implementation Detail | Location |
 | :--- | :--- | :--- |
-| **1. Read 3 Transcripts** | Custom parser (`transcript_parser.py`) extracts metadata (Expert Name, Role, Market), timestamp headers (`MM:SS`), and dialogue turns. | `services/transcript_parser.py` |
-| **2. Answer Guide Questions per Expert** | Answers all 6 market research questions, split by expert (Dr. Jean Martin - France, Anna Keller - Germany, Dr. Emily Carter - UK). | `services/guide_service.py` |
-| **3 & 4. Exact Quotes & Timestamps** | Output schema enforces `QuoteEvidence` (`transcript_id`, `quote`, `timestamp`, `segment_index`). Clicking any card smooth scrolls the transcript & flashes a yellow pulse. | `static/js/app.js` |
-| **5. Cross-Call Themes & Disagreements** | Synthesizes consensus (e.g., training bottlenecks, procurement ROI weight) vs. key disagreements (e.g., expected 3-5y procedure volume growth: Germany 7-12% vs France/UK 15-20%+). | `services/theme_service.py` |
-| **6. RAG Free-Form Chat** | ChromaDB vector store embeds dialogue segments with rich metadata (`market`, `expert_name`, `timestamp`). RAG endpoint handles arbitrary search questions. | `services/rag_service.py` & `services/chat_service.py` |
+| **1. Upload & Read Transcripts** | Custom parser (`transcript_parser.py`) extracts metadata & dialogue turns. Includes interactive drag & drop UI + `POST /api/upload` endpoint for dynamic transcript ingestion. | `app.py` & `services/transcript_parser.py` |
+| **2. Answer Guide Questions per Expert** | Answers all 6 market research questions per expert with a unified cross-market executive takeaway summary at the top of each question card. | `services/guide_service.py` |
+| **3 & 4. Exact Quotes & Timestamps** | Output schema enforces `QuoteEvidence` (`transcript_id`, `quote`, `timestamp`, `segment_index`). Clicking any card smooth-scrolls to the exact line & flashes a pulse highlight. | `static/js/app.js` |
+| **5. Cross-Call Themes & Disagreements** | Synthesizes consensus (e.g., training bottlenecks, procurement ROI weight) vs. key disagreements (e.g., expected 3-5y growth: Germany 7-12% vs France/UK 15-20%+). | `services/theme_service.py` |
+| **6. Topic-Enriched RAG Search** | ChromaDB vector store embeds dialogue segments enriched with interviewer question prompts & section topics. Per-market querying (`query_segments_per_market`) guarantees 100% equal market representation. | `services/rag_service.py` & `services/chat_service.py` |
 
 ---
 
@@ -86,7 +86,8 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 ### 1. Model Choice & RAG Strategy
 * **LLM Engine:** Gemini 2.5 / 1.5 Flash via `google-genai` for fast inference and structured JSON schema compliance.
 * **Vector Store:** ChromaDB in-memory vector database with `all-MiniLM-L6-v2` embeddings.
-* **Why RAG?** Even though 3 transcripts fit in context (~6KB total text), RAG was implemented for free-form search and to demonstrate a modular vector architecture that scales.
+* **Topic-Enriched Q+A Indexing:** Solves dialogue ellipsis by pairing interviewer prompts and section topics directly into candidate chunk embeddings, ensuring queries for `"decision-making timeline"` match exact answer turns (*"Nine to eighteen months..."*).
+* **Per-Market Grouped Retrieval:** Prevents single-market adoption chunks from crowding out other markets, guaranteeing balanced side-by-side citations across all uploaded transcripts.
 
 ### 2. Citation & Timestamp Grounding
 * Grounding is enforced at the schema level using Pydantic `QuoteEvidence` structures (`quote`, `timestamp`, `segment_index`, `speaker`).
@@ -103,10 +104,10 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 ### 4. How to Scale from 3 Transcripts to 30+ or 300+
 In the technical round, explain how our current architecture scales seamlessly:
 1. **Vector Retrieval vs. Context Explosion:**
-   * Passing 30 transcripts (~600KB) into a single prompt increases latency and token costs. RAG allows retrieving only the top $k$ relevant segments (e.g., top 10 segments across 300 files) per query.
-2. **Metadata Partitioning:**
-   * ChromaDB vector metadata filters (e.g. `where={"market": "Germany"}` or `where={"specialty": "Urology"}`) narrow vector search bounds instantly.
-3. **Chunking Optimization:**
-   * Chunking by multi-turn conversation windows (3–5 segments) preserves dialogue context while preserving fine-grained `start_seconds` timestamps for UI highlighting.
+   * Passing 30 transcripts (~600KB) into a single prompt increases latency and token costs. RAG allows retrieving only the top $k$ relevant segments per query.
+2. **Metadata Partitioning & Per-Market Grouping:**
+   * ChromaDB vector metadata filters (`where={"market": "Germany"}`) narrow search bounds instantly and ensure fair representation across 300+ files.
+3. **Dynamic Upload Pipeline (`POST /api/upload`):**
+   * Async file upload endpoint parses `.txt` files on the fly, updates vector indexes in real-time, and refreshes dashboard tabs dynamically.
 4. **Database Persistence & Async Indexing:**
-   * Move from in-memory Chroma to persistent Chroma/pgvector SQLite storage, indexing new transcripts asynchronously via background tasks.
+   * Move from in-memory Chroma to persistent Chroma/pgvector storage, indexing new transcripts asynchronously via background worker threads.
