@@ -110,10 +110,10 @@
     <div class="flex-1 flex flex-col min-w-0 pb-36">
 
         <!-- Main Workspace -->
-        <main class="px-4 py-4 md:px-8 md:py-5 max-w-7xl w-full mx-auto space-y-5 flex-1">
+        <main class="px-4 py-3 md:px-8 md:py-4 max-w-7xl w-full mx-auto space-y-4 flex-1">
 
             <!-- TAB 1: INTERVIEW GUIDE MATRIX -->
-            <section id="view-guide" class="tab-view space-y-5">
+            <section id="view-guide" class="tab-view space-y-4">
                 <div class="space-y-1">
                     <h3 class="text-xl font-bold text-slate-900 tracking-tight">Interview Guide Matrix</h3>
                     <p class="text-xs text-slate-500 font-medium leading-relaxed">Executive synthesized takeaways with verbatim extracted transcript quotes.</p>
@@ -122,13 +122,13 @@
                     </p>
                 </div>
 
-                <div id="guide-questions-container" class="space-y-5">
+                <div id="guide-questions-container" class="space-y-4">
                     <!-- Loaded dynamically as collapsible accordions via JS -->
                 </div>
             </section>
 
             <!-- TAB 2: THEMES & DISAGREEMENTS -->
-            <section id="view-themes" class="tab-view hidden space-y-5">
+            <section id="view-themes" class="tab-view hidden space-y-4">
                 <div class="space-y-1">
                     <h3 class="text-xl font-bold text-slate-900 tracking-tight">Cross-Call Synthesis & Disagreements</h3>
                     <p class="text-xs text-slate-500 font-medium leading-relaxed">Consensus trends vs market disagreements across European expert calls.</p>
@@ -137,13 +137,21 @@
                     </p>
                 </div>
 
-                <div id="themes-container" class="space-y-5">
+                <div id="themes-container" class="space-y-4">
                     <!-- Loaded dynamically as collapsible accordions via JS -->
                 </div>
             </section>
 
             <!-- TAB 3: TRANSCRIPT VIEWER -->
-            <section id="view-viewer" class="tab-view hidden space-y-5">
+            <section id="view-viewer" class="tab-view hidden space-y-4">
+                <div class="space-y-1">
+                    <h3 class="text-xl font-bold text-slate-900 tracking-tight">Expert Transcript Dialogue Viewer</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed">Full verbatim transcript dialogue with real-time dialogue filter & timestamp navigation.</p>
+                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium pt-0.5 flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-info"></i> Select a market subtab below or search dialogue keywords
+                    </p>
+                </div>
+
                 <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 shadow-sm">
                     <div class="flex flex-wrap gap-2.5" id="transcript-subtabs-container">
                         <!-- Loaded dynamically via JS -->
@@ -155,7 +163,7 @@
                 </div>
 
                 <!-- Transcript Reader Container -->
-                <div class="glass-panel p-5 md:p-6 max-h-[75vh] overflow-y-auto space-y-4 shadow-md" id="transcript-reader">
+                <div class="glass-panel p-5 md:p-6 max-h-[70vh] overflow-y-auto space-y-4 shadow-md" id="transcript-reader">
                     <!-- Segments loaded dynamically -->
                 </div>
             </section>
