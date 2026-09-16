@@ -294,17 +294,6 @@ function renderThemes() {
         `;
     }).join('');
 }
-                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cross-Market Extracted Quotes</span>
-                            <div class="space-y-3">
-                                ${evidenceHtml}
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `;
-    }).join('');
-}
 
 // Render Tab 3: Transcript Viewer
 function renderTranscriptViewer(transcriptId) {
