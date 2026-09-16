@@ -46,7 +46,7 @@
 
     <!-- LEFT GLASS SIDEBAR CONTROLS -->
     <aside class="w-64 glass-panel m-4 mr-0 border flex flex-col justify-between shrink-0 h-[calc(100vh-2rem)] sticky top-4 z-30 shadow-xl">
-        <div class="p-5 space-y-6 overflow-y-auto">
+        <div class="p-6 space-y-6 overflow-y-auto">
             <!-- App Brand & Logo -->
             <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-violet-600 to-indigo-700 flex items-center justify-center shadow-lg shadow-violet-600/35 font-bold text-white text-xl">
@@ -62,29 +62,29 @@
             <nav class="space-y-2 pt-2">
                 <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 px-3 mb-2">Main Controls</div>
                 
-                <button id="tab-btn-guide" onclick="switchTab('guide')" class="sidebar-nav-item active w-full px-3.5 py-3 rounded-xl text-xs font-bold flex items-center gap-3 transition">
+                <button id="tab-btn-guide" onclick="switchTab('guide')" class="sidebar-nav-item active w-full px-4 py-3 rounded-xl text-xs font-bold flex items-center gap-3.5 transition">
                     <i class="fa-solid fa-list-check text-sm w-4 text-center"></i>
                     <span>Interview Guide</span>
                 </button>
 
-                <button id="tab-btn-themes" onclick="switchTab('themes')" class="sidebar-nav-item w-full px-3.5 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition">
+                <button id="tab-btn-themes" onclick="switchTab('themes')" class="sidebar-nav-item w-full px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3.5 transition">
                     <i class="fa-solid fa-diagram-project text-sm w-4 text-center"></i>
                     <span>Themes & Disagreements</span>
                 </button>
 
-                <button id="tab-btn-viewer" onclick="switchTab('viewer')" class="sidebar-nav-item w-full px-3.5 py-3 rounded-xl text-xs font-semibold flex items-center gap-3 transition">
+                <button id="tab-btn-viewer" onclick="switchTab('viewer')" class="sidebar-nav-item w-full px-4 py-3 rounded-xl text-xs font-semibold flex items-center gap-3.5 transition">
                     <i class="fa-solid fa-file-lines text-sm w-4 text-center"></i>
                     <span>Transcript Viewer</span>
                 </button>
 
-                <button onclick="openUploadModal()" class="w-full mt-2 px-3.5 py-2.5 rounded-xl text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-600/20 flex items-center justify-center gap-2 transition">
+                <button onclick="openUploadModal()" class="w-full mt-3 px-4 py-3 rounded-xl text-xs font-bold text-violet-600 dark:text-violet-400 bg-violet-600/10 hover:bg-violet-600/20 border border-violet-600/20 flex items-center justify-center gap-2.5 transition">
                     <i class="fa-solid fa-cloud-arrow-up text-sm"></i>
                     <span>Upload Transcript</span>
                 </button>
             </nav>
 
             <!-- Case Pack Summary Info -->
-            <div class="expert-scope-card p-4 rounded-2xl border space-y-2 text-xs shadow-xs">
+            <div class="expert-scope-card p-4 rounded-2xl border space-y-2.5 text-xs shadow-xs">
                 <div class="font-bold flex items-center gap-1.5 text-slate-800">
                     <i class="fa-solid fa-earth-europe text-emerald-600"></i> Expert Scope
                 </div>
@@ -96,7 +96,7 @@
 
         <!-- Sidebar Footer: Dark Mode Toggle Switch -->
         <div class="p-4 border-t border-slate-200/60">
-            <button onclick="toggleDarkMode()" id="theme-toggle-btn" class="w-full py-2.5 px-3 rounded-xl text-xs font-bold flex items-center justify-between transition bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200">
+            <button onclick="toggleDarkMode()" id="theme-toggle-btn" class="w-full py-2.5 px-3.5 rounded-xl text-xs font-bold flex items-center justify-between transition bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200">
                 <span class="flex items-center gap-2">
                     <i id="theme-toggle-icon" class="fa-solid fa-moon text-violet-600"></i>
                     <span id="theme-toggle-text">Dark Mode</span>
@@ -107,55 +107,55 @@
     </aside>
 
     <!-- MAIN CONTENT CANVAS -->
-    <div class="flex-1 flex flex-col min-w-0 pb-36">
+    <div class="flex-1 flex flex-col min-w-0 pb-44">
 
         <!-- Main Workspace -->
-        <main class="p-4 md:p-8 max-w-7xl w-full mx-auto space-y-8 flex-1">
+        <main class="p-6 md:p-10 max-w-7xl w-full mx-auto space-y-10 flex-1">
 
             <!-- TAB 1: INTERVIEW GUIDE MATRIX -->
-            <section id="view-guide" class="tab-view space-y-8">
+            <section id="view-guide" class="tab-view space-y-9">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-900">Interview Guide Matrix</h3>
-                    <p class="text-xs text-slate-500 font-medium">Executive synthesized takeaways with verbatim extracted transcript quotes.</p>
-                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1 flex items-center gap-1.5">
+                    <h3 class="text-xl font-bold text-slate-900 tracking-tight">Interview Guide Matrix</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed mt-1">Executive synthesized takeaways with verbatim extracted transcript quotes.</p>
+                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-info"></i> Click any verbatim quote block to scroll to exact transcript timestamp
                     </p>
                 </div>
 
-                <div id="guide-questions-container" class="space-y-6">
+                <div id="guide-questions-container" class="space-y-7">
                     <!-- Loaded dynamically as collapsible accordions via JS -->
                 </div>
             </section>
 
             <!-- TAB 2: THEMES & DISAGREEMENTS -->
-            <section id="view-themes" class="tab-view hidden space-y-6">
+            <section id="view-themes" class="tab-view hidden space-y-8">
                 <div>
-                    <h3 class="text-xl font-bold text-slate-900">Cross-Call Synthesis & Disagreements</h3>
-                    <p class="text-xs text-slate-500 font-medium">Consensus trends vs market disagreements across European expert calls.</p>
-                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1 flex items-center gap-1.5">
+                    <h3 class="text-xl font-bold text-slate-900 tracking-tight">Cross-Call Synthesis & Disagreements</h3>
+                    <p class="text-xs text-slate-500 font-medium leading-relaxed mt-1">Consensus trends vs market disagreements across European expert calls.</p>
+                    <p class="text-[11px] text-violet-600 dark:text-violet-400 font-medium mt-1.5 flex items-center gap-1.5">
                         <i class="fa-solid fa-circle-info"></i> Click any quote card to jump to transcript timestamp
                     </p>
                 </div>
 
-                <div id="themes-container" class="space-y-6">
+                <div id="themes-container" class="space-y-7">
                     <!-- Loaded dynamically as collapsible accordions via JS -->
                 </div>
             </section>
 
             <!-- TAB 3: TRANSCRIPT VIEWER -->
-            <section id="view-viewer" class="tab-view hidden space-y-6">
-                <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-4 shadow-sm">
-                    <div class="flex flex-wrap gap-2" id="transcript-subtabs-container">
+            <section id="view-viewer" class="tab-view hidden space-y-8">
+                <div class="flex flex-wrap items-center justify-between gap-4 glass-panel p-5 shadow-sm">
+                    <div class="flex flex-wrap gap-2.5" id="transcript-subtabs-container">
                         <!-- Loaded dynamically via JS -->
                     </div>
                     <div class="relative flex-1 max-w-xs">
-                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
-                        <input type="text" id="transcript-search" oninput="filterTranscriptSegments()" placeholder="Search transcript dialogue..." class="w-full text-xs rounded-xl pl-8 pr-3 py-2 font-medium">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="transcript-search" oninput="filterTranscriptSegments()" placeholder="Search transcript dialogue..." class="w-full text-xs rounded-xl pl-9 pr-3.5 py-2.5 font-medium">
                     </div>
                 </div>
 
                 <!-- Transcript Reader Container -->
-                <div class="glass-panel p-6 max-h-[72vh] overflow-y-auto space-y-4 shadow-md" id="transcript-reader">
+                <div class="glass-panel p-7 max-h-[72vh] overflow-y-auto space-y-5 shadow-md" id="transcript-reader">
                     <!-- Segments loaded dynamically -->
                 </div>
             </section>
@@ -167,10 +167,10 @@
     <div id="chat-backdrop" onclick="closeChatPopover()" class="hidden fixed inset-0 bg-slate-950/50 backdrop-blur-md z-40 transition-all"></div>
 
     <!-- FLOATING RAG CHAT BOT BAR (Tightly Blurred Pill Wrapper) -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-none">
+    <div class="fixed bottom-7 left-1/2 -translate-x-1/2 z-50 w-full max-w-2xl px-4 pointer-events-none">
         
         <!-- RAG Chat Popover Panel (No Visible Scrollbar) -->
-        <div id="chat-popover" class="hidden mb-4 glass-drawer-panel p-6 max-h-[60vh] overflow-y-auto shadow-2xl no-scrollbar pointer-events-auto">
+        <div id="chat-popover" class="hidden mb-4 glass-drawer-panel p-7 max-h-[60vh] overflow-y-auto shadow-2xl no-scrollbar pointer-events-auto">
             <div class="flex items-center justify-between popover-header-divider pb-3 mb-3">
                 <div class="flex items-center gap-2 text-violet-600 font-bold text-sm">
                     <i class="fa-solid fa-wand-magic-sparkles"></i>
