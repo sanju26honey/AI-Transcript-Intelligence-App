@@ -137,11 +137,11 @@ function renderGuideAnswers() {
         const isScrollable = count > 3;
 
         const gridOrScrollClass = isScrollable
-            ? 'flex overflow-x-auto gap-6 pt-2 pb-3 custom-h-scroll max-w-full'
-            : 'grid grid-cols-1 md:grid-cols-3 gap-6 pt-2';
+            ? 'flex overflow-x-auto gap-4 pt-1 pb-2 custom-h-scroll max-w-full'
+            : 'grid grid-cols-1 md:grid-cols-3 gap-4 pt-1';
 
         const cardWidthClass = isScrollable
-            ? 'w-[320px] md:w-[350px] shrink-0'
+            ? 'w-[300px] md:w-[330px] shrink-0'
             : '';
 
         const expertCards = qItem.answers_by_expert.map(ans => {
@@ -151,13 +151,13 @@ function renderGuideAnswers() {
             const evidenceHtml = ans.evidence.map(ev => `
                 <div onclick="highlightQuote('${ev.transcript_id}', ${ev.segment_index})" 
                      class="quote-card-container">
-                    <div class="flex items-start gap-3">
-                        <span class="text-slate-400 font-serif text-xl leading-none font-bold">❞</span>
-                        <div class="flex-1 space-y-2">
+                    <div class="flex items-start gap-2.5">
+                        <span class="text-slate-400 font-serif text-lg leading-none font-bold">❞</span>
+                        <div class="flex-1 space-y-1.5">
                             <p class="text-xs italic leading-relaxed quote-text">
                                 "${ev.quote}"
                             </p>
-                            <div class="flex items-center justify-between text-[11px] pt-1.5 font-medium">
+                            <div class="flex items-center justify-between text-[11px] pt-1 font-medium">
                                 <span class="quote-action-link flex items-center gap-1">
                                     <i class="fa-regular fa-clock"></i> ${ev.timestamp}
                                 </span>
@@ -171,16 +171,16 @@ function renderGuideAnswers() {
             `).join('');
 
             return `
-                <div class="expert-card p-6 md:p-7 flex flex-col justify-between space-y-5 ${cardWidthClass}">
+                <div class="expert-card p-4 md:p-5 flex flex-col space-y-3 ${cardWidthClass}">
                     <div>
-                        <div class="flex items-start justify-between mb-3.5 expert-card-header pb-3.5">
+                        <div class="flex items-start justify-between mb-2 expert-card-header pb-2">
                             <div>
-                                <h4 class="font-bold text-sm md:text-base leading-tight tracking-tight">${ans.expert_name}</h4>
-                                <p class="text-xs font-medium text-slate-500 mt-0.5">${role}</p>
+                                <h4 class="font-bold text-sm leading-tight tracking-tight">${ans.expert_name}</h4>
+                                <p class="text-[11px] font-medium text-slate-500 mt-0.5">${role}</p>
                             </div>
-                            <span class="country-pill text-xs font-semibold px-3 py-1 rounded-full shadow-2xs">${countryBadge}</span>
+                            <span class="country-pill text-[11px] font-semibold px-2.5 py-0.5 rounded-full shadow-2xs">${countryBadge}</span>
                         </div>
-                        <p class="text-xs md:text-[13px] font-semibold leading-relaxed pt-1 mb-3">
+                        <p class="text-xs md:text-[13px] font-semibold leading-relaxed mb-1">
                             ${ans.answer}
                         </p>
                     </div>
@@ -195,33 +195,33 @@ function renderGuideAnswers() {
         const iconRotated = qIdx === 0 ? 'rotated' : '';
 
         return `
-            <div class="glass-panel border shadow-lg overflow-hidden transition-all">
+            <div class="glass-panel border shadow-md overflow-hidden transition-all">
                 <!-- Accordion Header -->
-                <div onclick="toggleQuestionAccordion(${qIdx})" class="p-6 md:p-7 cursor-pointer flex items-center justify-between gap-4 hover:bg-slate-500/5 transition">
-                    <div class="flex items-center gap-3.5">
-                        <span class="w-8 h-8 rounded-xl bg-violet-600/10 text-violet-600 font-bold flex items-center justify-center text-xs shrink-0 border border-violet-600/20">
+                <div onclick="toggleQuestionAccordion(${qIdx})" class="p-5 md:p-5.5 cursor-pointer flex items-center justify-between gap-4 hover:bg-slate-500/5 transition">
+                    <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-lg bg-violet-600/10 text-violet-600 font-bold flex items-center justify-center text-xs shrink-0 border border-violet-600/20">
                             Q${qIdx + 1}
                         </span>
-                        <h3 class="font-bold text-base md:text-lg leading-snug tracking-tight">${qItem.question}</h3>
+                        <h3 class="font-bold text-base leading-snug tracking-tight">${qItem.question}</h3>
                     </div>
                     <div class="flex items-center gap-3">
                         <span class="text-xs text-slate-400 font-medium hidden sm:inline">${count} Expert Responses</span>
-                        <div class="w-8 h-8 rounded-full accordion-chevron-btn flex items-center justify-center shrink-0">
+                        <div class="w-7 h-7 rounded-full accordion-chevron-btn flex items-center justify-center shrink-0">
                             <i id="acc-icon-q-${qIdx}" class="fa-solid fa-chevron-down accordion-icon text-xs ${iconRotated}"></i>
                         </div>
                     </div>
                 </div>
                 <!-- Accordion Body -->
-                <div id="acc-content-q-${qIdx}" class="p-6 md:p-7 pt-0 accordion-divider ${isFirstOpen}">
-                    <div class="pt-5 space-y-5">
+                <div id="acc-content-q-${qIdx}" class="p-5 md:p-5.5 pt-0 accordion-divider ${isFirstOpen}">
+                    <div class="pt-3 space-y-3">
                         <!-- Executive Takeaway (Clean typography inline summary) -->
-                        <div class="p-4 rounded-2xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/15 mb-2">
+                        <div class="p-3.5 rounded-xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/15">
                             <p class="text-xs md:text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">
                                 <strong class="text-violet-600 dark:text-violet-400 font-bold">Executive Takeaway:</strong> ${qItem.overall_summary || 'Executive cross-market synthesis across all expert responses.'}
                             </p>
                         </div>
 
-                        <!-- Per-Expert Cards Container (Grid if <=3, Scrollable Row if >3) -->
+                        <!-- Per-Expert Cards Container -->
                         <div class="${gridOrScrollClass}">
                             ${expertCards}
                         </div>
@@ -248,14 +248,14 @@ function renderThemes() {
         const evidenceHtml = t.evidence.map(ev => `
             <div onclick="highlightQuote('${ev.transcript_id}', ${ev.segment_index})"
                  class="quote-card-container">
-                <div class="flex items-center justify-between text-xs font-semibold mb-1.5">
+                <div class="flex items-center justify-between text-xs font-semibold mb-1">
                     <span class="quote-meta">${ev.market} (${ev.expert_name})</span>
-                    <span class="country-pill px-2.5 py-0.5 rounded-md text-[10px] font-mono">
+                    <span class="country-pill px-2 py-0.5 rounded-md text-[10px] font-mono">
                         ${ev.timestamp}
                     </span>
                 </div>
                 <p class="text-xs italic leading-relaxed quote-text">"${ev.quote}"</p>
-                <div class="mt-1.5 text-[10px] quote-action-link text-right flex items-center justify-end gap-1 font-semibold">
+                <div class="mt-1 text-[10px] quote-action-link text-right flex items-center justify-end gap-1 font-semibold">
                     <span>Inspect in transcript</span> <i class="fa-solid fa-arrow-right"></i>
                 </div>
             </div>
@@ -267,22 +267,33 @@ function renderThemes() {
         return `
             <div class="glass-panel border shadow-md overflow-hidden transition-all">
                 <!-- Accordion Header -->
-                <div onclick="toggleThemeAccordion(${tIdx})" class="p-6 md:p-7 cursor-pointer flex items-center justify-between gap-4 hover:bg-slate-500/5 transition">
-                    <div class="flex items-center gap-3.5">
-                        <h4 class="font-bold text-base md:text-lg leading-snug tracking-tight">${t.topic}</h4>
-                        <span class="px-3.5 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5 shrink-0 ${badgeClass}">
+                <div onclick="toggleThemeAccordion(${tIdx})" class="p-5 md:p-5.5 cursor-pointer flex items-center justify-between gap-4 hover:bg-slate-500/5 transition">
+                    <div class="flex items-center gap-3">
+                        <h4 class="font-bold text-base leading-snug tracking-tight">${t.topic}</h4>
+                        <span class="px-3 py-1 rounded-full border text-xs font-semibold flex items-center gap-1.5 shrink-0 ${badgeClass}">
                             <i class="fa-solid ${badgeIcon}"></i> ${badgeLabel}
                         </span>
                     </div>
-                    <div class="w-8 h-8 rounded-full accordion-chevron-btn flex items-center justify-center shrink-0">
+                    <div class="w-7 h-7 rounded-full accordion-chevron-btn flex items-center justify-center shrink-0">
                         <i id="acc-icon-t-${tIdx}" class="fa-solid fa-chevron-down accordion-icon text-xs ${iconRotated}"></i>
                     </div>
                 </div>
                 <!-- Accordion Body -->
-                <div id="acc-content-t-${tIdx}" class="p-6 md:p-7 pt-0 accordion-divider ${isFirstOpen}">
-                    <div class="pt-5 space-y-5">
+                <div id="acc-content-t-${tIdx}" class="p-5 md:p-5.5 pt-0 accordion-divider ${isFirstOpen}">
+                    <div class="pt-3 space-y-3">
                         <p class="text-xs md:text-sm font-medium leading-relaxed text-slate-700 dark:text-slate-300">${t.summary}</p>
-                        <div class="pt-4 accordion-divider space-y-3">
+                        <div class="pt-2 accordion-divider space-y-2">
+                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cross-Market Extracted Quotes</span>
+                            <div class="space-y-2">
+                                ${evidenceHtml}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
                             <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Cross-Market Extracted Quotes</span>
                             <div class="space-y-3">
                                 ${evidenceHtml}
