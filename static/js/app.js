@@ -126,15 +126,19 @@ function updateThemeToggleUI(isDark) {
 
 async function fetchInitialData() {
     try {
-        const [txRes, guideRes, themeRes] = await Promise.all([
+        // 1. Fetch and render Themes & Disagreements first
+        const themeRes = await fetch('/api/themes');
+        THEMES_DATA = await themeRes.json();
+        renderThemes();
+
+        // 2. Then fetch transcript data and interview guide answers
+        const [txRes, guideRes] = await Promise.all([
             fetch('/api/transcripts'),
-            fetch('/api/guide-answers'),
-            fetch('/api/themes')
+            fetch('/api/guide-answers')
         ]);
 
         TRANSCRIPTS_DATA = await txRes.json();
         GUIDE_ANSWERS_DATA = await guideRes.json();
-        THEMES_DATA = await themeRes.json();
 
         const keys = Object.keys(TRANSCRIPTS_DATA);
         if (keys.length > 0 && (!CURRENT_TRANSCRIPT_ID || !TRANSCRIPTS_DATA[CURRENT_TRANSCRIPT_ID])) {
@@ -144,7 +148,6 @@ async function fetchInitialData() {
         renderExpertScopeSidebar();
         renderTranscriptSubtabs();
         renderGuideAnswers();
-        renderThemes();
         renderTranscriptViewer(CURRENT_TRANSCRIPT_ID);
     } catch (err) {
         console.error('Failed to load initial application data:', err);
