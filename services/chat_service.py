@@ -141,8 +141,19 @@ class ChatService:
             return None
 
         try:
-            raw_ev = [QuoteEvidence(**ev) for ev in json_data.get("evidence", [])]
-            verified_ev = verify_and_enrich_evidence(raw_ev, all_segments_by_transcript)
+            # Build 1 quote per market evidence list from retrieved_segs to guarantee representation across all transcripts
+            evidence_list = [
+                QuoteEvidence(
+                    transcript_id=seg.transcript_id,
+                    expert_name=seg.expert_name,
+                    market=seg.market,
+                    quote=seg.text,
+                    timestamp=seg.timestamp,
+                    segment_index=seg.segment_index,
+                    speaker=seg.speaker
+                ) for seg in retrieved_segs
+            ]
+            verified_ev = verify_and_enrich_evidence(evidence_list, all_segments_by_transcript)
 
             return ChatMessage(
                 question=question,
