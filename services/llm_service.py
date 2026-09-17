@@ -31,8 +31,17 @@ class LLMService:
             f"{schema_description}"
         )
 
-        # Fallback chain across supported Gemini Flash models to resist 503 high-demand spikes
-        candidate_models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash']
+        # Fallback chain prioritizing Gemini 3.x Flash models down to 2.5/1.5/2.0 Flash models to resist 503 high-demand spikes
+        candidate_models = [
+            'gemini-3.8-flash',
+            'gemini-3.7-flash',
+            'gemini-3.6-flash',
+            'gemini-3.5-flash',
+            'gemini-3.1-flash',
+            'gemini-2.5-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash'
+        ]
 
         for model_name in candidate_models:
             try:
