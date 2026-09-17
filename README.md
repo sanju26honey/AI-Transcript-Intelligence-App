@@ -26,7 +26,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
    ```bash
    cp .env.example .env
    ```
-   Add your `GEMINI_API_KEY` in `.env` for live LLM completions. *(Note: If no API key is provided, the app automatically runs in deterministic smart-fallback mode).*
+   Add your `GROQ_API_KEY` (or `GEMINI_API_KEY`) in `.env` for live LLM completions. *(Note: If no API key is provided, the app automatically runs in deterministic smart-fallback mode).*
 
 4. **Run Application Server:**
    ```bash
@@ -84,7 +84,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 ## Technical Interview Talking Points
 
 ### 1. Model Choice & RAG Strategy
-* **LLM Engine:** Gemini 3.x Flash (`gemini-3.8-flash` through `gemini-3.1-flash`, with `2.5/1.5/2.0` fallback) via `google-genai` for fast inference and structured JSON schema compliance.
+* **LLM Engine:** Groq API (`openai/gpt-oss-20b`, with fallback to `llama-3.3-70b-versatile` / `llama-3.1-8b-instant`) for ultra-low latency inference and structured JSON schema compliance.
 * **Vector Store:** ChromaDB in-memory vector database with `all-MiniLM-L6-v2` embeddings.
 * **Topic-Enriched Q+A Indexing:** Solves dialogue ellipsis by pairing interviewer prompts and section topics directly into candidate chunk embeddings, ensuring queries for `"decision-making timeline"` match exact answer turns (*"Nine to eighteen months..."*).
 * **Per-Market Grouped Retrieval:** Prevents single-market adoption chunks from crowding out other markets, guaranteeing balanced side-by-side citations across all uploaded transcripts.
