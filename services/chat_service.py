@@ -136,7 +136,7 @@ class ChatService:
         }
         """
 
-        json_data = self.llm_service.generate_json(prompt, schema)
+        json_data = self.llm_service.generate_json(prompt, schema, task_label="RAG Chat Question")
         if not json_data or "answer" not in json_data:
             return None
 

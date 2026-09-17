@@ -61,13 +61,14 @@ class LLMService:
                 if q in self.listeners:
                     self.listeners.remove(q)
 
-    def generate_json(self, prompt: str, schema_description: str) -> Optional[Dict[str, Any]]:
+    def generate_json(self, prompt: str, schema_description: str, task_label: str = "Synthesis Task") -> Optional[Dict[str, Any]]:
         """Invokes Gemini LLM requesting JSON output matching schema_description with resilient model fallback chain."""
         if not self.client:
             self.emit_event("model_fallback", {
                 "model": None,
+                "task_label": task_label,
                 "progress": 100,
-                "message": "Gemini API key not configured or client inactive. Operating in offline smart synthesis mode."
+                "message": f"[{task_label}] Gemini client inactive. Operating in instant RAG synthesis mode."
             })
             return None
 
@@ -79,22 +80,23 @@ class LLMService:
 
         candidate_models = [
             'gemini-3.6-flash',
-            'gemini-3.7-flash',
             'gemini-3.8-flash',
-            'gemini-3.5-flash',
-            'gemini-3.1-flash',
-            'gemini-2.5-flash'
+            'gemini-3.5-flash'
         ]
         total_models = len(candidate_models)
 
         for idx, model_name in enumerate(candidate_models, start=1):
+            next_model = candidate_models[idx] if idx < total_models else None
             progress_pct = round((idx / total_models) * 100, 1)
+
             self.emit_event("model_start", {
                 "model": model_name,
+                "next_model": next_model,
+                "task_label": task_label,
                 "index": idx,
                 "total": total_models,
                 "progress": progress_pct,
-                "message": f"Loading Gemini model {model_name} ({idx}/{total_models})..."
+                "message": f"Loading {model_name}..."
             })
 
             try:
@@ -103,42 +105,61 @@ class LLMService:
                     contents=full_prompt,
                 )
 
-                text = response.text.strip()
-                if text.startswith("```json"):
-                    text = text[7:]
-                if text.startswith("```"):
-                    text = text[3:]
-                if text.endswith("```"):
-                    text = text[:-3]
-                text = text.strip()
+                text = response.text.strip() if response and response.text else ""
+                if not text:
+                    continue
 
-                parsed_result = json.loads(text)
+                import re
+                cleaned = re.sub(r'^```(?:json)?\s*', '', text, flags=re.MULTILINE)
+                cleaned = re.sub(r'\s*```$', '', cleaned, flags=re.MULTILINE).strip()
 
-                self.emit_event("model_success", {
-                    "model": model_name,
-                    "index": idx,
-                    "total": total_models,
-                    "progress": 100.0,
-                    "message": f"Successfully connected and generated response with {model_name}!"
-                })
-                return parsed_result
+                parsed_result = None
+                try:
+                    parsed_result = json.loads(cleaned)
+                except Exception:
+                    match = re.search(r'\{.*\}', cleaned, re.DOTALL)
+                    if match:
+                        try:
+                            parsed_result = json.loads(match.group(0))
+                        except Exception:
+                            pass
+
+                if parsed_result is None and len(cleaned) > 10:
+                    parsed_result = {"overall_summary": cleaned}
+
+                if parsed_result and isinstance(parsed_result, dict):
+                    self.emit_event("model_success", {
+                        "model": model_name,
+                        "task_label": task_label,
+                        "index": idx,
+                        "total": total_models,
+                        "progress": 100.0,
+                        "message": f"Connected to {model_name} successfully!"
+                    })
+                    return parsed_result
             except Exception as e:
                 err_msg = str(e)
                 err_msg_lower = err_msg.lower()
 
                 if "429" in err_msg or "resource_exhausted" in err_msg_lower or "quota" in err_msg_lower or "rate limit" in err_msg_lower:
                     event_type = "rate_limit"
-                    msg = f"Rate limit reached for {model_name} (429 Resource Exhausted). Retrying fallback model..."
+                    reason = "429 Rate Limit"
+                    msg = f"Failed due to 429 Rate Limit ({model_name})" + (f", loading {next_model} instead..." if next_model else "...")
                 elif "503" in err_msg or "unavailable" in err_msg_lower or "overloaded" in err_msg_lower or "busy" in err_msg_lower or "500" in err_msg:
                     event_type = "model_busy"
-                    msg = f"Model {model_name} is currently busy or unavailable (503). Retrying fallback model..."
+                    reason = "503 Model Busy"
+                    msg = f"Failed due to 503 Model Busy ({model_name})" + (f", loading {next_model} instead..." if next_model else "...")
                 else:
                     event_type = "model_error"
-                    msg = f"Gemini API model {model_name} unavailable: {err_msg[:90]}. Retrying fallback model..."
+                    reason = "Unavailable"
+                    msg = f"Failed ({model_name})" + (f", loading {next_model} instead..." if next_model else "...")
 
-                logger.warning(msg)
+                logger.warning(f"[{task_label}] {msg}")
                 self.emit_event(event_type, {
                     "model": model_name,
+                    "next_model": next_model,
+                    "reason": reason,
+                    "task_label": task_label,
                     "index": idx,
                     "total": total_models,
                     "progress": progress_pct,
@@ -146,59 +167,75 @@ class LLMService:
                 })
                 continue
 
-        logger.error("All Gemini LLM candidate models failed or unavailable. Triggering deterministic smart fallback mode.")
+        logger.error(f"[{task_label}] All candidate Gemini models unavailable. Triggering offline summary.")
         self.emit_event("model_fallback", {
             "model": None,
+            "task_label": task_label,
             "progress": 100,
-            "message": "All Gemini candidate models failed or rate-limited. Activated smart offline fallback."
+            "message": f"[{task_label}] All Gemini candidate models unavailable. Showing offline summary."
         })
         return None
 
+
+
     def trigger_demo_events(self):
-        """Emits a sequence of model loading, rate limit, model busy, and success events for testing."""
+        """Emits a sequence of multi-task model loading, rate limit, and model busy events for testing."""
         def run_demo():
-            candidate_models = [
-                ('gemini-3.6-flash', 'rate_limit', 'Rate limit reached for gemini-3.6-flash (429 Resource Exhausted). Retrying fallback...'),
-                ('gemini-3.7-flash', 'model_busy', 'Model gemini-3.7-flash is currently busy (503 Service Unavailable). Retrying fallback...'),
-                ('gemini-3.8-flash', 'model_success', 'Successfully connected and generated content using gemini-3.8-flash!')
+            tasks = [
+                ('Guide Q1', [
+                    ('gemini-2.5-flash', 'rate_limit', '[Guide Q1] Rate limit reached for gemini-3.6-flash (429 Resource Exhausted). Retrying fallback...'),
+                    ('gemini-3.7-flash', 'model_success', '[Guide Q1] Connected to gemini-3.7-flash successfully!')
+                ]),
+                ('Themes', [
+                    ('gemini-3.6-flash', 'model_busy', '[Themes] Model gemini-3.6-flash is currently busy (503 Service Unavailable). Retrying...'),
+                    ('gemini-3.7-flash', 'rate_limit', '[Themes] Rate limit reached for gemini-3.7-flash (429). Retrying...'),
+                    ('gemini-3.8-flash', 'model_success', '[Themes] Connected to gemini-3.8-flash successfully!')
+                ])
             ]
             total = 6
-            for idx, (model_name, status, msg) in enumerate(candidate_models, start=1):
-                progress = round((idx / total) * 100, 1)
-                self.emit_event("model_start", {
-                    "model": model_name,
-                    "index": idx,
-                    "total": total,
-                    "progress": progress,
-                    "message": f"Loading Gemini model {model_name} ({idx}/{total})..."
-                })
-                time.sleep(1.0)
-                if status == "rate_limit":
-                    self.emit_event("rate_limit", {
+            for task_label, events in tasks:
+                for idx, (model_name, status, msg) in enumerate(events, start=1):
+                    progress = round((idx / total) * 100, 1)
+                    self.emit_event("model_start", {
                         "model": model_name,
+                        "task_label": task_label,
                         "index": idx,
                         "total": total,
                         "progress": progress,
-                        "message": msg
+                        "message": f"[{task_label}] Loading Gemini model {model_name} ({idx}/{total})..."
                     })
-                    time.sleep(0.8)
-                elif status == "model_busy":
-                    self.emit_event("model_busy", {
-                        "model": model_name,
-                        "index": idx,
-                        "total": total,
-                        "progress": progress,
-                        "message": msg
-                    })
-                    time.sleep(0.8)
-                elif status == "model_success":
-                    self.emit_event("model_success", {
-                        "model": model_name,
-                        "index": idx,
-                        "total": total,
-                        "progress": 100.0,
-                        "message": msg
-                    })
+                    time.sleep(0.9)
+                    if status == "rate_limit":
+                        self.emit_event("rate_limit", {
+                            "model": model_name,
+                            "task_label": task_label,
+                            "index": idx,
+                            "total": total,
+                            "progress": progress,
+                            "message": msg
+                        })
+                        time.sleep(0.7)
+                    elif status == "model_busy":
+                        self.emit_event("model_busy", {
+                            "model": model_name,
+                            "task_label": task_label,
+                            "index": idx,
+                            "total": total,
+                            "progress": progress,
+                            "message": msg
+                        })
+                        time.sleep(0.7)
+                    elif status == "model_success":
+                        self.emit_event("model_success", {
+                            "model": model_name,
+                            "task_label": task_label,
+                            "index": idx,
+                            "total": total,
+                            "progress": 100.0,
+                            "message": msg
+                        })
+                        time.sleep(0.5)
 
         threading.Thread(target=run_demo, daemon=True).start()
+
 

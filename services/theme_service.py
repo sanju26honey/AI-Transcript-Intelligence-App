@@ -11,11 +11,9 @@ class ThemeService:
         self,
         all_segments_by_transcript: Dict[str, List[TranscriptSegment]]
     ) -> List[ThemeOrDisagreement]:
-        """Synthesizes 3-6 cross-call themes and disagreements across all 3 market transcripts."""
-        llm_themes = self._generate_with_llm(all_segments_by_transcript)
-        if llm_themes:
-            return llm_themes
+        """Synthesizes 3-6 cross-call themes and disagreements across all market transcripts instantly via RAG."""
         return self._generate_fallback(all_segments_by_transcript)
+
 
     def _generate_with_llm(
         self,

@@ -39,111 +39,33 @@ function initSSEModelEvents() {
     }
 }
 
-// Toast Notification Manager
-function showToast(type, title, message) {
-    const container = document.getElementById('toast-container');
-    if (!container) return;
-
-    const toast = document.createElement('div');
-    toast.className = `toast-card toast-${type} flex items-start gap-3 shadow-xl`;
-
-    let iconClass = 'fa-solid fa-circle-info text-violet-600';
-    let titleColor = 'text-slate-800 dark:text-slate-100';
-
-    if (type === 'rate-limit') {
-        iconClass = 'fa-solid fa-triangle-exclamation text-amber-500';
-        titleColor = 'text-amber-700 dark:text-amber-400';
-    } else if (type === 'model-busy') {
-        iconClass = 'fa-solid fa-bolt text-coral-600';
-        titleColor = 'text-coral-600 dark:text-orange-400';
-    } else if (type === 'success') {
-        iconClass = 'fa-solid fa-circle-check text-emerald-600';
-        titleColor = 'text-emerald-700 dark:text-emerald-400';
-    }
-
-    toast.innerHTML = `
-        <div class="text-base shrink-0 mt-0.5">
-            <i class="${iconClass}"></i>
-        </div>
-        <div class="flex-1 space-y-0.5">
-            <h5 class="font-bold text-xs ${titleColor}">${title}</h5>
-            <p class="text-[11px] font-medium text-slate-600 dark:text-slate-300 leading-snug">${message}</p>
-        </div>
-        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-xs px-1">
-            <i class="fa-solid fa-xmark"></i>
-        </button>
-    `;
-
-    container.appendChild(toast);
-
-    // Auto-dismiss after 4.5 seconds
-    setTimeout(() => {
-        toast.classList.add('toast-removing');
-        setTimeout(() => toast.remove(), 350);
-    }, 4500);
-}
-
-// Gemini Model Progress Bar & Badge Controller
+// Per-Card Inline Loading Indicator Controller
 function handleModelStatusEvent(event) {
     const data = event.data || {};
     const type = event.type;
     const model = data.model;
-    const progress = data.progress || 0;
-    const message = data.message || '';
+    const taskLabel = data.task_label || '';
 
-    const barFill = document.getElementById('model-progress-bar-fill');
-    const percentText = document.getElementById('model-progress-percent');
-    const statusText = document.getElementById('model-progress-status-text');
-    const badge = document.getElementById('model-progress-badge');
-    const icon = document.getElementById('model-progress-icon');
-
-    if (barFill) barFill.style.width = `${progress}%`;
-    if (percentText) percentText.innerText = `${Math.round(progress)}%`;
-    if (statusText) statusText.innerText = message;
-
-    // Update individual candidate model badge
-    if (model) {
-        const modelBadgeEl = document.getElementById(`badge-${model}`);
-        if (modelBadgeEl) {
-            if (type === 'model_start') {
-                modelBadgeEl.className = 'model-badge model-badge-active';
-                modelBadgeEl.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[9px]"></i> ${model}`;
-            } else if (type === 'rate_limit') {
-                modelBadgeEl.className = 'model-badge model-badge-rate-limited';
-                modelBadgeEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-[9px]"></i> ${model} (429)`;
-                showToast('rate-limit', 'Rate Limit Reached', message);
-            } else if (type === 'model_busy') {
-                modelBadgeEl.className = 'model-badge model-badge-busy';
-                modelBadgeEl.innerHTML = `<i class="fa-solid fa-bolt text-[9px]"></i> ${model} (503)`;
-                showToast('model-busy', 'Model Busy / Unavailable', message);
-            } else if (type === 'model_success') {
-                modelBadgeEl.className = 'model-badge model-badge-success';
-                modelBadgeEl.innerHTML = `<i class="fa-solid fa-check text-[9px]"></i> ${model} Connected`;
-                showToast('success', 'Gemini Model Connected', message);
-            }
+    // Route status update to specific card indicator if task_label matches Guide Q1, Q2, etc.
+    let qIdx = -1;
+    if (taskLabel.toLowerCase().includes('guide q')) {
+        const match = taskLabel.match(/q(\d+)/i);
+        if (match) {
+            qIdx = parseInt(match[1]) - 1;
         }
     }
 
-    if (type === 'model_start') {
-        if (badge) {
-            badge.innerText = `Trying ${model}`;
-            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-violet-600/15 text-violet-600 dark:text-violet-300 border border-violet-500/30';
+    if (qIdx >= 0) {
+        const textEl = document.getElementById(`summary-text-q-${qIdx}`);
+        if (textEl && type === 'model_start' && model) {
+            textEl.innerHTML = `<span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading ${model}...</span>`;
         }
-        if (icon) icon.className = 'fa-solid fa-spinner animate-spin text-violet-600 dark:text-violet-400';
-    } else if (type === 'model_success') {
-        if (badge) {
-            badge.innerText = `Connected: ${model}`;
-            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
-        }
-        if (icon) icon.className = 'fa-solid fa-check-double text-emerald-600 dark:text-emerald-400';
-    } else if (type === 'model_fallback') {
-        if (badge) {
-            badge.innerText = `Smart Fallback Mode`;
-            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30';
-        }
-        showToast('info', 'Offline Synthesis Active', message);
     }
 }
+
+
+
+
 
 // Trigger Demo Sequence for Progress Bar & Toast Notifications
 async function triggerDemoModelEvents() {
@@ -371,11 +293,13 @@ function renderGuideAnswers() {
                 <!-- Accordion Body -->
                 <div id="acc-content-q-${qIdx}" class="p-5 md:p-5.5 pt-0 accordion-divider ${isFirstOpen}">
                     <div class="pt-3 space-y-3">
-                        <!-- Executive Takeaway (Clean typography inline summary) -->
+                        <!-- Executive Takeaway (Clean typography inline summary with small loading indicator) -->
                         <div class="p-3.5 rounded-xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/15">
-                            <p class="text-xs md:text-sm font-medium leading-relaxed text-slate-800 dark:text-slate-200">
-                                <strong class="text-violet-600 dark:text-violet-400 font-bold">Executive Takeaway:</strong> ${qItem.overall_summary || 'Executive cross-market synthesis across all expert responses.'}
-                            </p>
+                            <div id="summary-text-q-${qIdx}" class="text-xs md:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
+                                <span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2">
+                                    <i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading gemini-3.6-flash...
+                                </span>
+                            </div>
                         </div>
 
                         <!-- Per-Expert Cards Container -->
@@ -387,7 +311,43 @@ function renderGuideAnswers() {
             </div>
         `;
     }).join('');
+
+    // Automatically trigger dynamic Gemini synthesis for guide summaries in background
+    autoSynthesizeGuideSummaries();
 }
+
+// Automatically Synthesize Executive Summaries with Gemini in Background immediately on page load
+function autoSynthesizeGuideSummaries() {
+    if (!GUIDE_ANSWERS_DATA.length) return;
+
+    GUIDE_ANSWERS_DATA.forEach((qItem, qIdx) => {
+        const qId = qItem.question_id || `q${qIdx + 1}`;
+        const textEl = document.getElementById(`summary-text-q-${qIdx}`);
+
+        if (textEl) {
+            textEl.innerHTML = `<span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading gemini-3.6-flash...</span>`;
+        }
+
+        setTimeout(() => {
+            fetch('/api/synthesize-guide-summary', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question_id: qId })
+            }).then(res => res.json()).then(data => {
+                if (textEl && data.summary) {
+                    textEl.innerHTML = `<strong class="text-violet-600 dark:text-violet-400 font-bold">Executive Takeaway:</strong> ${data.summary}`;
+                }
+            }).catch(err => {
+                if (textEl) {
+                    textEl.innerHTML = `<strong class="text-violet-600 dark:text-violet-400 font-bold">Executive Takeaway:</strong> ${qItem.overall_summary || 'Executive cross-market synthesis across expert responses.'}`;
+                }
+            });
+        }, qIdx * 250);
+    });
+}
+
+
+
 
 // Render Tab 2: Themes & Disagreements (Collapsible Accordions)
 function renderThemes() {

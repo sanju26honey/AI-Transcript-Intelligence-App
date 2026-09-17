@@ -85,6 +85,22 @@ def get_guide_answers():
     answers = guide_service.get_guide_answers(GUIDE_QUESTIONS, TRANSCRIPT_SEGMENTS)
     return jsonify([a.model_dump() for a in answers])
 
+@app.route("/api/synthesize-guide-summary", methods=["POST"])
+def synthesize_guide_summary():
+    """Triggers Gemini LLM model synthesis for a guide question summary with progress events."""
+    req_data = request.get_json() or {}
+    q_id = req_data.get("question_id", "q1")
+
+    q_text = "Robotic surgery adoption and market dynamics"
+    for q in GUIDE_QUESTIONS:
+        if q["id"] == q_id:
+            q_text = q["text"]
+            break
+
+    summary = guide_service.synthesize_summary(q_id, q_text)
+    return jsonify({"question_id": q_id, "summary": summary})
+
+
 @app.route("/api/themes", methods=["GET"])
 def get_themes():
     """Returns cross-call consensus and disagreement themes."""
@@ -163,11 +179,8 @@ def get_model_status():
         "client_active": llm_service.client is not None,
         "candidate_models": [
             'gemini-3.6-flash',
-            'gemini-3.7-flash',
             'gemini-3.8-flash',
-            'gemini-3.5-flash',
-            'gemini-3.1-flash',
-            'gemini-2.5-flash'
+            'gemini-3.5-flash'
         ],
         "history": llm_service.event_history[-10:]
     })
