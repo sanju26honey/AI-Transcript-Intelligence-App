@@ -25,15 +25,20 @@ class ThemeService:
         if not self.llm_service.client:
             return None
 
-        # Build full context text
-        full_text = ""
+        # Build compressed context text (filtering out interviewer filler text and retaining expert statements)
+        selected_segs = []
         for tid, segs in all_segments_by_transcript.items():
-            full_text += f"\n--- {tid} ---\n"
-            for s in segs:
-                full_text += f"[{s.timestamp}] Segment {s.segment_index} ({s.speaker}): {s.text}\n"
+            expert_segs = [s for s in segs if not s.speaker.lower().startswith("interviewer")]
+            # Retain top informative expert statements per transcript to stay comfortably under 2k tokens
+            selected_segs.extend(expert_segs[:8])
+
+        full_text = "\n".join([
+            f"Transcript ID: {s.transcript_id} | Market: {s.market} | Expert: {s.expert_name} | [{s.timestamp}] Segment {s.segment_index} ({s.speaker}): {s.text}"
+            for s in selected_segs
+        ])
 
         prompt = (
-            f"Analyze these 3 European robotic surgery expert call transcripts:\n{full_text}\n\n"
+            f"Analyze these European robotic surgery expert call transcripts:\n{full_text}\n\n"
             f"Identify 4 key cross-call themes. For each theme:\n"
             f"1. Specify topic title and summary.\n"
             f"2. Classify type as either 'consensus' (experts broadly agree) or 'disagreement' (experts diverge/disagree).\n"

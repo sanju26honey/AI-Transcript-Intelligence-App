@@ -184,8 +184,8 @@ def get_model_status():
         "client_active": llm_service.client is not None,
         "candidate_models": [
             'openai/gpt-oss-20b',
-            'llama-3.3-70b-versatile',
-            'llama-3.1-8b-instant'
+            'openai/gpt-oss-120b',
+            'groq/compound-mini'
         ],
         "history": llm_service.event_history[-10:]
     })
