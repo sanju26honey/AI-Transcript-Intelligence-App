@@ -10,18 +10,18 @@ logger = logging.getLogger(__name__)
 
 class LLMService:
     def __init__(self):
-        self.api_key = os.getenv("GROQ_API_KEY") or os.getenv("GEMINI_API_KEY")
+        self.api_key = os.getenv("GEMINI_API_KEY")
         self.client = None
 
-        if self.api_key and self.api_key not in ["your_groq_api_key_here", "your_gemini_api_key_here"]:
+        if self.api_key and self.api_key not in ["your_gemini_api_key_here", ""]:
             try:
-                from groq import Groq
-                self.client = Groq(api_key=self.api_key)
+                from google import genai
+                self.client = genai.Client(api_key=self.api_key)
             except Exception as e:
-                logger.warning(f"Could not initialize Groq Client: {e}. Falling back to smart mock mode.")
+                logger.warning(f"Could not initialize Google GenAI Client: {e}. Falling back to smart mock mode.")
 
     def generate_json(self, prompt: str, schema_description: str) -> Optional[Dict[str, Any]]:
-        """Invokes Groq LLM requesting JSON output matching schema_description."""
+        """Invokes Gemini LLM requesting JSON output matching schema_description with resilient model fallback chain."""
         if not self.client:
             return None
 
@@ -31,25 +31,22 @@ class LLMService:
             f"{schema_description}"
         )
 
+        # Candidate model fallback sequence across Gemini Flash models
         candidate_models = [
-            "openai/gpt-oss-20b",
-            "llama-3.3-70b-versatile",
-            "llama-3.1-8b-instant"
+            'gemini-2.5-flash',
+            'gemini-1.5-flash',
+            'gemini-2.0-flash',
+            'gemini-3.6-flash'
         ]
 
         for model_name in candidate_models:
             try:
-                response = self.client.chat.completions.create(
+                response = self.client.models.generate_content(
                     model=model_name,
-                    messages=[
-                        {"role": "system", "content": "You are a helpful JSON-only data extraction assistant. Return only raw, valid JSON."},
-                        {"role": "user", "content": full_prompt}
-                    ],
-                    temperature=0.2,
-                    response_format={"type": "json_object"}
+                    contents=full_prompt,
                 )
 
-                text = response.choices[0].message.content.strip()
+                text = response.text.strip()
                 # Clean possible markdown code fences
                 if text.startswith("```json"):
                     text = text[7:]
@@ -61,8 +58,8 @@ class LLMService:
 
                 return json.loads(text)
             except Exception as e:
-                logger.warning(f"Groq API model {model_name} unavailable: {e}. Attempting next candidate model...")
+                logger.warning(f"Gemini API model {model_name} unavailable: {e}. Attempting fallback model...")
                 continue
 
-        logger.error("All Groq LLM candidate models failed or unavailable. Triggering deterministic smart fallback mode.")
+        logger.error("All Gemini LLM candidate models failed or unavailable. Triggering deterministic smart fallback mode.")
         return None

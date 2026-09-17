@@ -84,7 +84,7 @@ A local Flask web application designed for the **Hasamex European Robotic Surger
 ## Technical Interview Talking Points
 
 ### 1. Model Choice & RAG Strategy
-* **LLM Engine:** Groq API (`openai/gpt-oss-20b`, with fallback to `llama-3.3-70b-versatile` / `llama-3.1-8b-instant`) for ultra-low latency inference and structured JSON schema compliance.
+* **LLM Engine:** Google Gemini API (`gemini-2.5-flash`, with resilient multi-model fallback chain across `gemini-1.5-flash`, `gemini-2.0-flash`, `gemini-3.6-flash`) for low-latency inference and structured JSON schema compliance.
 * **Vector Store:** ChromaDB in-memory vector database with `all-MiniLM-L6-v2` embeddings.
 * **Topic-Enriched Q+A Indexing:** Solves dialogue ellipsis by pairing interviewer prompts and section topics directly into candidate chunk embeddings, ensuring queries for `"decision-making timeline"` match exact answer turns (*"Nine to eighteen months..."*).
 * **Per-Market Grouped Retrieval:** Prevents single-market adoption chunks from crowding out other markets, guaranteeing balanced side-by-side citations across all uploaded transcripts.
