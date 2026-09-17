@@ -84,7 +84,7 @@ def get_guide_answers():
 
 @app.route("/api/synthesize-guide-summary", methods=["POST"])
 def synthesize_guide_summary():
-    """Triggers Gemini LLM model synthesis for a guide question summary with progress events."""
+    """Triggers Groq LLM model synthesis for a guide question summary and per-doctor AI summaries."""
     req_data = request.get_json() or {}
     q_id = req_data.get("question_id", "q1")
 
@@ -93,6 +93,14 @@ def synthesize_guide_summary():
         if q["id"] == q_id:
             q_text = q["text"]
             break
+
+    full_res = guide_service._generate_with_llm(q_id, q_text, TRANSCRIPT_SEGMENTS)
+    if full_res:
+        return jsonify({
+            "question_id": q_id,
+            "summary": full_res.overall_summary,
+            "answers_by_expert": [a.model_dump() for a in full_res.answers_by_expert]
+        })
 
     summary = guide_service.synthesize_summary(q_id, q_text)
     return jsonify({"question_id": q_id, "summary": summary})

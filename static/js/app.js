@@ -262,7 +262,7 @@ function renderGuideAnswers() {
                             </div>
                             <span class="country-pill text-[11px] font-semibold px-2.5 py-0.5 rounded-full shadow-2xs">${countryBadge}</span>
                         </div>
-                        <p class="text-xs md:text-[13px] font-semibold leading-relaxed mb-1">
+                        <p id="expert-ans-${qIdx}-${ans.expert_name.replace(/[^a-zA-Z0-9]/g, '')}" class="text-xs md:text-[13px] font-semibold leading-relaxed mb-1">
                             ${ans.answer}
                         </p>
                     </div>
@@ -339,6 +339,15 @@ function autoSynthesizeGuideSummaries() {
             }).then(res => res.json()).then(data => {
                 if (textEl && data.summary) {
                     textEl.innerHTML = `<strong class="text-violet-600 dark:text-violet-400 font-bold">Executive Takeaway:</strong> ${data.summary}`;
+                }
+                if (data.answers_by_expert && data.answers_by_expert.length) {
+                    data.answers_by_expert.forEach(ans => {
+                        const cleanName = ans.expert_name.replace(/[^a-zA-Z0-9]/g, '');
+                        const cardTextEl = document.getElementById(`expert-ans-${qIdx}-${cleanName}`);
+                        if (cardTextEl && ans.answer) {
+                            cardTextEl.innerText = ans.answer;
+                        }
+                    });
                 }
             }).catch(err => {
                 if (textEl) {
