@@ -21,11 +21,15 @@ class GuideService:
             q_id = q["id"]
             q_text = q["text"]
 
-            # Instant high-precision RAG extraction
-            fallback_answers = self._generate_fallback(q_id, q_text, all_segments_by_transcript)
-            # Set overall_summary to None initially to trigger live dynamic Gemini synthesis
-            fallback_answers.overall_summary = ""
-            results.append(fallback_answers)
+            # Dynamic ChromaDB RAG extraction first
+            rag_answers = self._generate_rag_fallback(q_id, q_text, all_segments_by_transcript)
+            if rag_answers:
+                rag_answers.overall_summary = ""
+                results.append(rag_answers)
+            else:
+                fallback_answers = self._generate_fallback(q_id, q_text, all_segments_by_transcript)
+                fallback_answers.overall_summary = ""
+                results.append(fallback_answers)
 
         return results
 
