@@ -107,7 +107,8 @@ class LLMService:
                             "role": "user",
                             "content": full_prompt
                         }
-                    ]
+                    ],
+                    max_tokens=4096
                 )
 
                 text = completion.choices[0].message.content.strip() if completion and completion.choices else ""
