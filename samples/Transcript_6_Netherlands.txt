@@ -1,0 +1,39 @@
+Expert 6 – Mark van der Meer
+Role: Hospital Operations & Procurement Manager
+Market: Netherlands
+
+00:00
+Interviewer: Thanks for joining us today, Mark. How would you describe robotic surgery adoption in the Netherlands?
+
+00:17
+Dr. van der Meer: Adoption is high in academic medical centers and large teaching hospitals. The Dutch healthcare model emphasizes centralized specialized care, so robotic systems are heavily utilized where installed.
+
+01:05
+Interviewer: What are the primary barriers to purchasing new robotic systems?
+
+01:11
+Dr. van der Meer: Strict health technology assessments (HTA) and rigid hospital capital budget caps are major barriers. Demonstrating net clinical superiority over advanced laparoscopic techniques is required before capital allocation.
+
+02:05
+Interviewer: How heavily do hospital procurement teams weigh ROI and financial budgets?
+
+02:11
+Dr. van der Meer: ROI and cost-per-procedure metrics are critical. We evaluate total cost of ownership over a 7 to 10 year lifespan, including instrument costs, maintenance, and facility modifications required for the robotic suite.
+
+03:00
+Interviewer: How do surgeon training and clinical outcomes factor into your decisions?
+
+03:06
+Dr. van der Meer: Clinical outcomes are essential to satisfy insurance and hospital quality benchmarks. Surgeon training is integrated into purchasing contracts; vendors must guarantee simulator access and initial proctored cases.
+
+04:00
+Interviewer: What is your 3-to-5-year outlook for robotic surgery in the Dutch market?
+
+04:06
+Dr. van der Meer: We project moderate, steady growth of 10 to 12 percent annually. Market expansion will focus on multi-departmental share models rather than single-specialty dedicated systems.
+
+05:00
+Interviewer: How long does the procurement decision process typically take?
+
+05:06
+Dr. van der Meer: The evaluation and procurement lifecycle typically spans 6 to 12 months, driven by formal hospital board review and multi-stakeholder committee consensus.

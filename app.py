@@ -60,6 +60,13 @@ def load_case_pack():
 # Initialize data on app startup
 load_case_pack()
 
+@app.after_request
+def add_header(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    response.headers["Expires"] = "0"
+    return response
+
 @app.route("/")
 def index():
     """Renders the main single-page application dashboard."""

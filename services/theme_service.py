@@ -88,17 +88,32 @@ class ThemeService:
                 raw_ev = []
                 for ev in item.get("evidence", []):
                     try:
-                        raw_ev.append(QuoteEvidence(**ev))
+                        if isinstance(ev, dict):
+                            if "segment_index" in ev and isinstance(ev["segment_index"], str):
+                                try:
+                                    ev["segment_index"] = int(ev["segment_index"])
+                                except Exception:
+                                    ev["segment_index"] = 0
+                            raw_ev.append(QuoteEvidence(**ev))
                     except Exception:
                         pass
                 verified_ev = verify_and_enrich_evidence(raw_ev, all_segments_by_transcript)
+
+                raw_type = str(item.get("type", "consensus")).lower().strip()
+                if "disagree" in raw_type or "diverg" in raw_type or "diff" in raw_type:
+                    theme_type = "disagreement"
+                else:
+                    theme_type = "consensus"
+
                 result.append(ThemeOrDisagreement(
                     topic=item.get("topic", "Cross-Market Strategic Theme"),
-                    type=item.get("type", "consensus"),
+                    type=theme_type,
                     summary=item.get("summary", ""),
                     evidence=verified_ev
                 ))
-            return result
+            if result:
+                return result
+            return None
         except Exception:
             return None
 

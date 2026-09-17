@@ -127,14 +127,14 @@ function updateThemeToggleUI(isDark) {
 async function fetchInitialData() {
     try {
         // 1. Fetch and render Themes & Disagreements first
-        const themeRes = await fetch('/api/themes');
+        const themeRes = await fetch('/api/themes?t=' + Date.now());
         THEMES_DATA = await themeRes.json();
         renderThemes();
 
         // 2. Then fetch transcript data and interview guide answers
         const [txRes, guideRes] = await Promise.all([
-            fetch('/api/transcripts'),
-            fetch('/api/guide-answers')
+            fetch('/api/transcripts?t=' + Date.now()),
+            fetch('/api/guide-answers?t=' + Date.now())
         ]);
 
         TRANSCRIPTS_DATA = await txRes.json();

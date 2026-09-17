@@ -168,22 +168,35 @@ class GuideService:
         try:
             expert_answers = []
             for item in json_data["answers_by_expert"]:
-                raw_evidence = [QuoteEvidence(**ev) for ev in item.get("evidence", [])]
+                raw_evidence = []
+                for ev in item.get("evidence", []):
+                    try:
+                        if isinstance(ev, dict):
+                            if "segment_index" in ev and isinstance(ev["segment_index"], str):
+                                try:
+                                    ev["segment_index"] = int(ev["segment_index"])
+                                except Exception:
+                                    ev["segment_index"] = 0
+                            raw_evidence.append(QuoteEvidence(**ev))
+                    except Exception:
+                        pass
                 verified_evidence = verify_and_enrich_evidence(raw_evidence, all_segments_by_transcript)[:1]
                 expert_answers.append(ExpertGuideAnswer(
-                    expert_name=item["expert_name"],
-                    market=item["market"],
+                    expert_name=item.get("expert_name", "Expert"),
+                    market=item.get("market", "Unknown Market"),
                     transcript_id=item.get("transcript_id", ""),
-                    answer=item["answer"],
+                    answer=item.get("answer", ""),
                     evidence=verified_evidence
                 ))
 
-            return GuideQuestionAnswers(
-                question_id=q_id,
-                question=q_text,
-                overall_summary=json_data.get("overall_summary", "Executive cross-market synthesis across all expert responses."),
-                answers_by_expert=expert_answers
-            )
+            if expert_answers:
+                return GuideQuestionAnswers(
+                    question_id=q_id,
+                    question=q_text,
+                    overall_summary=json_data.get("overall_summary", "Executive cross-market synthesis across all expert responses."),
+                    answers_by_expert=expert_answers
+                )
+            return None
         except Exception:
             return None
 
