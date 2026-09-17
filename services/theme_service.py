@@ -69,18 +69,33 @@ class ThemeService:
         """
 
         json_data = self.llm_service.generate_json(prompt, schema, task_label="Themes")
-        if not json_data or "themes" not in json_data:
+        if json_data and isinstance(json_data, dict) and "overall_summary" in json_data and "themes" not in json_data:
+            val = str(json_data["overall_summary"]).strip()
+            if "themes" in val:
+                try:
+                    unpacked = json.loads(val)
+                    if isinstance(unpacked, dict) and "themes" in unpacked:
+                        json_data = unpacked
+                except Exception:
+                    pass
+
+        if not json_data or not isinstance(json_data, dict) or "themes" not in json_data:
             return None
 
         try:
             result = []
             for item in json_data["themes"]:
-                raw_ev = [QuoteEvidence(**ev) for ev in item.get("evidence", [])]
+                raw_ev = []
+                for ev in item.get("evidence", []):
+                    try:
+                        raw_ev.append(QuoteEvidence(**ev))
+                    except Exception:
+                        pass
                 verified_ev = verify_and_enrich_evidence(raw_ev, all_segments_by_transcript)
                 result.append(ThemeOrDisagreement(
-                    topic=item["topic"],
-                    type=item["type"],
-                    summary=item["summary"],
+                    topic=item.get("topic", "Cross-Market Strategic Theme"),
+                    type=item.get("type", "consensus"),
+                    summary=item.get("summary", ""),
                     evidence=verified_ev
                 ))
             return result

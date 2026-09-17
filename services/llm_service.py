@@ -132,6 +132,17 @@ class LLMService:
                 if parsed_result is None and len(cleaned) > 10:
                     parsed_result = {"overall_summary": cleaned}
 
+                # If parsed_result wrapped a nested JSON object inside "overall_summary", unpack it
+                if parsed_result and isinstance(parsed_result, dict) and "overall_summary" in parsed_result and isinstance(parsed_result["overall_summary"], str):
+                    val = parsed_result["overall_summary"].strip()
+                    if val.startswith("{") and val.endswith("}"):
+                        try:
+                            unpacked = json.loads(val)
+                            if isinstance(unpacked, dict):
+                                parsed_result = unpacked
+                        except Exception:
+                            pass
+
                 if parsed_result and isinstance(parsed_result, dict):
                     self.emit_event("model_success", {
                         "model": model_name,
