@@ -11,7 +11,10 @@ class ThemeService:
         self,
         all_segments_by_transcript: Dict[str, List[TranscriptSegment]]
     ) -> List[ThemeOrDisagreement]:
-        """Synthesizes 3-6 cross-call themes and disagreements across all market transcripts instantly via RAG."""
+        """Synthesizes 3-6 cross-call themes and disagreements across all market transcripts via Groq LLM with fallback."""
+        llm_result = self._generate_with_llm(all_segments_by_transcript)
+        if llm_result:
+            return llm_result
         return self._generate_fallback(all_segments_by_transcript)
 
 
@@ -60,7 +63,7 @@ class ThemeService:
         }
         """
 
-        json_data = self.llm_service.generate_json(prompt, schema)
+        json_data = self.llm_service.generate_json(prompt, schema, task_label="Themes")
         if not json_data or "themes" not in json_data:
             return None
 
