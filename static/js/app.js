@@ -148,7 +148,9 @@ function renderGuideAnswers() {
             const role = roleMap[ans.expert_name] || 'Expert Specialist';
             const countryBadge = ans.market;
 
-            const evidenceHtml = ans.evidence.map(ev => `
+            const topEvidence = (ans.evidence && ans.evidence.length > 0) ? ans.evidence.slice(0, 1) : [];
+
+            const evidenceHtml = topEvidence.map(ev => `
                 <div onclick="highlightQuote('${ev.transcript_id}', ${ev.segment_index})" 
                      class="quote-card-container">
                     <div class="flex items-start gap-2.5">

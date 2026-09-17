@@ -89,7 +89,7 @@ class GuideService:
             expert_answers = []
             for item in json_data["answers_by_expert"]:
                 raw_evidence = [QuoteEvidence(**ev) for ev in item.get("evidence", [])]
-                verified_evidence = verify_and_enrich_evidence(raw_evidence, all_segments_by_transcript)
+                verified_evidence = verify_and_enrich_evidence(raw_evidence, all_segments_by_transcript)[:1]
                 expert_answers.append(ExpertGuideAnswer(
                     expert_name=item["expert_name"],
                     market=item["market"],
