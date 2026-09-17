@@ -13,8 +13,163 @@ document.addEventListener('DOMContentLoaded', () => {
         document.documentElement.classList.add('dark');
         updateThemeToggleUI(true);
     }
+    initSSEModelEvents();
     fetchInitialData();
 });
+
+// Initialize SSE for Real-Time Gemini Model Loading Events
+function initSSEModelEvents() {
+    if (window.EventSource) {
+        const evtSource = new EventSource('/api/llm-events');
+        
+        evtSource.onmessage = (e) => {
+            try {
+                const event = JSON.parse(e.data);
+                if (event && event.type && event.type !== 'connected') {
+                    handleModelStatusEvent(event);
+                }
+            } catch (err) {
+                console.warn('Failed to parse model status event:', err);
+            }
+        };
+
+        evtSource.onerror = (err) => {
+            console.log('SSE stream reconnecting...');
+        };
+    }
+}
+
+// Toast Notification Manager
+function showToast(type, title, message) {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `toast-card toast-${type} flex items-start gap-3 shadow-xl`;
+
+    let iconClass = 'fa-solid fa-circle-info text-violet-600';
+    let titleColor = 'text-slate-800 dark:text-slate-100';
+
+    if (type === 'rate-limit') {
+        iconClass = 'fa-solid fa-triangle-exclamation text-amber-500';
+        titleColor = 'text-amber-700 dark:text-amber-400';
+    } else if (type === 'model-busy') {
+        iconClass = 'fa-solid fa-bolt text-coral-600';
+        titleColor = 'text-coral-600 dark:text-orange-400';
+    } else if (type === 'success') {
+        iconClass = 'fa-solid fa-circle-check text-emerald-600';
+        titleColor = 'text-emerald-700 dark:text-emerald-400';
+    }
+
+    toast.innerHTML = `
+        <div class="text-base shrink-0 mt-0.5">
+            <i class="${iconClass}"></i>
+        </div>
+        <div class="flex-1 space-y-0.5">
+            <h5 class="font-bold text-xs ${titleColor}">${title}</h5>
+            <p class="text-[11px] font-medium text-slate-600 dark:text-slate-300 leading-snug">${message}</p>
+        </div>
+        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-slate-600 text-xs px-1">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    // Auto-dismiss after 4.5 seconds
+    setTimeout(() => {
+        toast.classList.add('toast-removing');
+        setTimeout(() => toast.remove(), 350);
+    }, 4500);
+}
+
+// Gemini Model Progress Bar & Badge Controller
+function handleModelStatusEvent(event) {
+    const data = event.data || {};
+    const type = event.type;
+    const model = data.model;
+    const progress = data.progress || 0;
+    const message = data.message || '';
+
+    const barFill = document.getElementById('model-progress-bar-fill');
+    const percentText = document.getElementById('model-progress-percent');
+    const statusText = document.getElementById('model-progress-status-text');
+    const badge = document.getElementById('model-progress-badge');
+    const icon = document.getElementById('model-progress-icon');
+
+    if (barFill) barFill.style.width = `${progress}%`;
+    if (percentText) percentText.innerText = `${Math.round(progress)}%`;
+    if (statusText) statusText.innerText = message;
+
+    // Update individual candidate model badge
+    if (model) {
+        const modelBadgeEl = document.getElementById(`badge-${model}`);
+        if (modelBadgeEl) {
+            if (type === 'model_start') {
+                modelBadgeEl.className = 'model-badge model-badge-active';
+                modelBadgeEl.innerHTML = `<i class="fa-solid fa-spinner animate-spin text-[9px]"></i> ${model}`;
+            } else if (type === 'rate_limit') {
+                modelBadgeEl.className = 'model-badge model-badge-rate-limited';
+                modelBadgeEl.innerHTML = `<i class="fa-solid fa-triangle-exclamation text-[9px]"></i> ${model} (429)`;
+                showToast('rate-limit', 'Rate Limit Reached', message);
+            } else if (type === 'model_busy') {
+                modelBadgeEl.className = 'model-badge model-badge-busy';
+                modelBadgeEl.innerHTML = `<i class="fa-solid fa-bolt text-[9px]"></i> ${model} (503)`;
+                showToast('model-busy', 'Model Busy / Unavailable', message);
+            } else if (type === 'model_success') {
+                modelBadgeEl.className = 'model-badge model-badge-success';
+                modelBadgeEl.innerHTML = `<i class="fa-solid fa-check text-[9px]"></i> ${model} Connected`;
+                showToast('success', 'Gemini Model Connected', message);
+            }
+        }
+    }
+
+    if (type === 'model_start') {
+        if (badge) {
+            badge.innerText = `Trying ${model}`;
+            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-violet-600/15 text-violet-600 dark:text-violet-300 border border-violet-500/30';
+        }
+        if (icon) icon.className = 'fa-solid fa-spinner animate-spin text-violet-600 dark:text-violet-400';
+    } else if (type === 'model_success') {
+        if (badge) {
+            badge.innerText = `Connected: ${model}`;
+            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30';
+        }
+        if (icon) icon.className = 'fa-solid fa-check-double text-emerald-600 dark:text-emerald-400';
+    } else if (type === 'model_fallback') {
+        if (badge) {
+            badge.innerText = `Smart Fallback Mode`;
+            badge.className = 'px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30';
+        }
+        showToast('info', 'Offline Synthesis Active', message);
+    }
+}
+
+// Trigger Demo Sequence for Progress Bar & Toast Notifications
+async function triggerDemoModelEvents() {
+    const candidateModels = [
+        'gemini-3.6-flash',
+        'gemini-3.7-flash',
+        'gemini-3.8-flash',
+        'gemini-3.5-flash',
+        'gemini-3.1-flash',
+        'gemini-2.5-flash'
+    ];
+    candidateModels.forEach(m => {
+        const el = document.getElementById(`badge-${m}`);
+        if (el) {
+            el.className = 'model-badge model-badge-idle';
+            el.innerHTML = `<i class="fa-solid fa-circle-notch text-[9px]"></i> ${m}`;
+        }
+    });
+
+    try {
+        await fetch('/api/demo-model-events', { method: 'POST' });
+    } catch (err) {
+        console.error('Failed to trigger demo model events:', err);
+    }
+}
+
 
 // Dark Mode Toggle Handler
 function toggleDarkMode() {

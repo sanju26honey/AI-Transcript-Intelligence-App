@@ -21,16 +21,74 @@ class GuideService:
             q_id = q["id"]
             q_text = q["text"]
 
-            # Try LLM synthesis via RAG if Gemini client is active
+            # 1. Primary: Gemini LLM synthesis via RAG context
             llm_answers = self._generate_with_llm(q_id, q_text, all_segments_by_transcript)
             if llm_answers:
                 results.append(llm_answers)
-            else:
-                # Fallback to high-precision rule-based extraction
-                fallback_answers = self._generate_fallback(q_id, q_text, all_segments_by_transcript)
-                results.append(fallback_answers)
+                continue
+
+            # 2. Secondary: Dynamic RAG vector search fallback (when Gemini is busy/offline)
+            rag_answers = self._generate_rag_fallback(q_id, q_text, all_segments_by_transcript)
+            if rag_answers:
+                results.append(rag_answers)
+                continue
+
+            # 3. Last Resort: Static hardcoded fallback map
+            fallback_answers = self._generate_fallback(q_id, q_text, all_segments_by_transcript)
+            results.append(fallback_answers)
 
         return results
+
+    def _generate_rag_fallback(
+        self,
+        q_id: str,
+        q_text: str,
+        all_segments_by_transcript: Dict[str, List[TranscriptSegment]]
+    ) -> Optional[GuideQuestionAnswers]:
+        """Dynamic ChromaDB vector search fallback when Gemini is unavailable or busy."""
+        try:
+            retrieved_segs = self.rag_service.query_segments_per_market(q_text, top_k_per_market=1)
+            if not retrieved_segs:
+                retrieved_segs = self.rag_service.query_segments(q_text, top_k=3)
+
+            if not retrieved_segs:
+                return None
+
+            expert_answers: List[ExpertGuideAnswer] = []
+            for seg in retrieved_segs:
+                ev = QuoteEvidence(
+                    transcript_id=seg.transcript_id,
+                    expert_name=seg.expert_name,
+                    market=seg.market,
+                    quote=seg.text,
+                    timestamp=seg.timestamp,
+                    segment_index=seg.segment_index,
+                    speaker=seg.speaker
+                )
+                verified = verify_and_enrich_evidence([ev], all_segments_by_transcript)[:1]
+
+                clean_text = seg.text.strip()
+                ans_summary = f"{clean_text[:140]}..." if len(clean_text) > 140 else clean_text
+
+                expert_answers.append(ExpertGuideAnswer(
+                    expert_name=seg.expert_name,
+                    market=seg.market,
+                    transcript_id=seg.transcript_id,
+                    answer=ans_summary,
+                    evidence=verified
+                ))
+
+            if not expert_answers:
+                return None
+
+            return GuideQuestionAnswers(
+                question_id=q_id,
+                question=q_text,
+                overall_summary=f"Dynamic RAG vector synthesis across expert responses for: '{q_text}'.",
+                answers_by_expert=expert_answers
+            )
+        except Exception:
+            return None
 
     def _generate_with_llm(
         self,

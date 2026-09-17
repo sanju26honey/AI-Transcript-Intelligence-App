@@ -1,6 +1,7 @@
 import os
+import json
 from typing import Dict, List
-from flask import Flask, render_template, jsonify, request
+from flask import Flask, render_template, jsonify, request, Response, stream_with_context
 
 from models import TranscriptMetadata, TranscriptSegment
 from services.transcript_parser import parse_transcript_file
@@ -140,6 +141,44 @@ def upload_transcript():
     except Exception as e:
         return jsonify({"error": f"Failed to parse uploaded transcript: {str(e)}"}), 500
 
+@app.route("/api/llm-events", methods=["GET"])
+def llm_events_stream():
+    """SSE endpoint streaming real-time Gemini model loading and status toast events."""
+    def event_stream():
+        q = llm_service.subscribe()
+        try:
+            yield f"data: {json.dumps({'type': 'connected', 'data': {'message': 'SSE stream connected'}})}\n\n"
+            while True:
+                event = q.get()
+                yield f"data: {json.dumps(event)}\n\n"
+        except GeneratorExit:
+            llm_service.unsubscribe(q)
+
+    return Response(stream_with_context(event_stream()), mimetype="text/event-stream")
+
+@app.route("/api/model-status", methods=["GET"])
+def get_model_status():
+    """Returns active candidate models and recent model event history."""
+    return jsonify({
+        "client_active": llm_service.client is not None,
+        "candidate_models": [
+            'gemini-3.6-flash',
+            'gemini-3.7-flash',
+            'gemini-3.8-flash',
+            'gemini-3.5-flash',
+            'gemini-3.1-flash',
+            'gemini-2.5-flash'
+        ],
+        "history": llm_service.event_history[-10:]
+    })
+
+@app.route("/api/demo-model-events", methods=["POST"])
+def demo_model_events():
+    """Triggers a sequence of model loading, rate limit, and model busy events for progress bar testing."""
+    llm_service.trigger_demo_events()
+    return jsonify({"success": True, "message": "Demo model loading event sequence started."})
+
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
+
