@@ -232,22 +232,27 @@ class GuideService:
         mappings = list(fallback_map.get(q_id, []))
         handled_tids = {m[0] for m in mappings}
 
-        # Dynamically process any newly uploaded transcripts not present in hardcoded map
+        # Dynamically process any newly uploaded transcripts via ChromaDB RAG search
         for tid, segs in all_segments_by_transcript.items():
             if tid not in handled_tids and segs:
                 meta_seg = segs[0]
                 exp_name = meta_seg.expert_name
                 mkt_name = meta_seg.market
                 
-                # Pick a non-interviewer segment if available
-                expert_segs = [s for s in segs if not "interviewer" in s.speaker.lower()]
-                target_seg = expert_segs[min(len(expert_segs)-1, int(q_id.replace("q","")) % max(1, len(expert_segs)))] if expert_segs else segs[0]
+                # Query ChromaDB vector database scoped to this market for question q_text
+                matched = self.rag_service.query_segments(q_text, top_k=3, market_filter=mkt_name)
+                target_seg = matched[0] if matched else segs[0]
+                if target_seg.speaker.lower().startswith("interviewer") and len(segs) > 1:
+                    non_int = [s for s in segs if not s.speaker.lower().startswith("interviewer")]
+                    target_seg = non_int[0] if non_int else target_seg
+                
+                ans_summary = target_seg.text[:140] + "..." if len(target_seg.text) > 140 else target_seg.text
                 
                 mappings.append((
                     tid,
                     exp_name,
                     mkt_name,
-                    f"Expert response from {mkt_name} ({exp_name}): {target_seg.text[:120]}...",
+                    ans_summary,
                     target_seg.text,
                     target_seg.timestamp,
                     target_seg.segment_index,

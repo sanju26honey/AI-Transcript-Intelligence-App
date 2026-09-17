@@ -38,12 +38,9 @@ def load_case_pack():
     TRANSCRIPT_SEGMENTS.clear()
     ALL_SEGMENTS_FLAT.clear()
 
-    # Find transcript files
-    file_list = [
-        "Transcript_1_France.txt",
-        "Transcript_2_Germany.txt",
-        "Transcript_3_UK.txt"
-    ]
+    # Discover all transcript files in root directory
+    file_list = [f for f in os.listdir(BASE_DIR) if f.startswith("Transcript_") and f.endswith(".txt")]
+    file_list.sort()
 
     for fname in file_list:
         fpath = os.path.join(BASE_DIR, fname)
