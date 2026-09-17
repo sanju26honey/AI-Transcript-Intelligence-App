@@ -21,33 +21,40 @@ class LLMService:
                 logger.warning(f"Could not initialize Google GenAI Client: {e}. Falling back to smart mock mode.")
 
     def generate_json(self, prompt: str, schema_description: str) -> Optional[Dict[str, Any]]:
-        """Invokes Gemini LLM requesting JSON output matching schema_description."""
+        """Invokes Gemini LLM requesting JSON output matching schema_description with resilient model fallback chain."""
         if not self.client:
             return None
 
-        try:
-            full_prompt = (
-                f"{prompt}\n\n"
-                f"CRITICAL: Return ONLY valid, parseable raw JSON matching this structure without markdown formatting or code blocks:\n"
-                f"{schema_description}"
-            )
+        full_prompt = (
+            f"{prompt}\n\n"
+            f"CRITICAL: Return ONLY valid, parseable raw JSON matching this structure without markdown formatting or code blocks:\n"
+            f"{schema_description}"
+        )
 
-            response = self.client.models.generate_content(
-                model='gemini-3.6-flash',
-                contents=full_prompt,
-            )
+        # Fallback chain across supported Gemini Flash models to resist 503 high-demand spikes
+        candidate_models = ['gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-2.0-flash']
 
-            text = response.text.strip()
-            # Clean possible markdown code fences
-            if text.startswith("```json"):
-                text = text[7:]
-            if text.startswith("```"):
-                text = text[3:]
-            if text.endswith("```"):
-                text = text[:-3]
-            text = text.strip()
+        for model_name in candidate_models:
+            try:
+                response = self.client.models.generate_content(
+                    model=model_name,
+                    contents=full_prompt,
+                )
 
-            return json.loads(text)
-        except Exception as e:
-            logger.error(f"Error calling Gemini API: {e}")
-            return None
+                text = response.text.strip()
+                # Clean possible markdown code fences
+                if text.startswith("```json"):
+                    text = text[7:]
+                if text.startswith("```"):
+                    text = text[3:]
+                if text.endswith("```"):
+                    text = text[:-3]
+                text = text.strip()
+
+                return json.loads(text)
+            except Exception as e:
+                logger.warning(f"Gemini API model {model_name} unavailable: {e}. Attempting fallback model...")
+                continue
+
+        logger.error("All Gemini LLM candidate models failed or unavailable. Triggering deterministic smart fallback mode.")
+        return None
