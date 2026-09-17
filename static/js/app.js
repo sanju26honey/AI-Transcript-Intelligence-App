@@ -297,7 +297,7 @@ function renderGuideAnswers() {
                         <div class="p-3.5 rounded-xl bg-violet-500/5 dark:bg-violet-500/10 border border-violet-500/15">
                             <div id="summary-text-q-${qIdx}" class="text-xs md:text-sm text-slate-800 dark:text-slate-200 leading-relaxed font-medium">
                                 <span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2">
-                                    <i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading gemini-3.6-flash...
+                                    <i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading openai/gpt-oss-20b...
                                 </span>
                             </div>
                         </div>
@@ -312,11 +312,11 @@ function renderGuideAnswers() {
         `;
     }).join('');
 
-    // Automatically trigger dynamic Gemini synthesis for guide summaries in background
+    // Automatically trigger dynamic Groq synthesis for guide summaries in background
     autoSynthesizeGuideSummaries();
 }
 
-// Automatically Synthesize Executive Summaries with Gemini in Background immediately on page load
+// Automatically Synthesize Executive Summaries with Groq in Background immediately on page load
 function autoSynthesizeGuideSummaries() {
     if (!GUIDE_ANSWERS_DATA.length) return;
 
@@ -325,7 +325,7 @@ function autoSynthesizeGuideSummaries() {
         const textEl = document.getElementById(`summary-text-q-${qIdx}`);
 
         if (textEl) {
-            textEl.innerHTML = `<span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading gemini-3.6-flash...</span>`;
+            textEl.innerHTML = `<span class="text-violet-600 dark:text-violet-400 font-semibold animate-pulse flex items-center gap-2"><i class="fa-solid fa-spinner animate-spin text-xs"></i> Loading openai/gpt-oss-20b...</span>`;
         }
 
         setTimeout(() => {

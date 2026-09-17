@@ -13,18 +13,18 @@ logger = logging.getLogger(__name__)
 
 class LLMService:
     def __init__(self):
-        self.api_key = os.getenv("GEMINI_API_KEY")
+        self.api_key = os.getenv("GROQ_API_KEY")
         self.client = None
         self.listeners: List[Queue] = []
         self._lock = threading.Lock()
         self.event_history: List[Dict[str, Any]] = []
 
-        if self.api_key and self.api_key not in ["your_gemini_api_key_here", ""]:
+        if self.api_key and self.api_key not in ["your_groq_api_key_here", ""]:
             try:
-                from google import genai
-                self.client = genai.Client(api_key=self.api_key)
+                from groq import Groq
+                self.client = Groq(api_key=self.api_key)
             except Exception as e:
-                logger.warning(f"Could not initialize Google GenAI Client: {e}. Falling back to smart mock mode.")
+                logger.warning(f"Could not initialize Groq Client: {e}. Falling back to smart mock mode.")
 
     def subscribe(self) -> Queue:
         """Subscribes an SSE listener queue to real-time model loading events."""
@@ -62,13 +62,13 @@ class LLMService:
                     self.listeners.remove(q)
 
     def generate_json(self, prompt: str, schema_description: str, task_label: str = "Synthesis Task") -> Optional[Dict[str, Any]]:
-        """Invokes Gemini LLM requesting JSON output matching schema_description with resilient model fallback chain."""
+        """Invokes Groq LLM requesting JSON output matching schema_description with resilient model fallback chain."""
         if not self.client:
             self.emit_event("model_fallback", {
                 "model": None,
                 "task_label": task_label,
                 "progress": 100,
-                "message": f"[{task_label}] Gemini client inactive. Operating in instant RAG synthesis mode."
+                "message": f"[{task_label}] Groq client inactive. Operating in instant RAG synthesis mode."
             })
             return None
 
@@ -79,9 +79,9 @@ class LLMService:
         )
 
         candidate_models = [
-            'gemini-3.6-flash',
-            'gemini-3.8-flash',
-            'gemini-3.5-flash'
+            'openai/gpt-oss-20b',
+            'llama-3.3-70b-versatile',
+            'llama-3.1-8b-instant'
         ]
         total_models = len(candidate_models)
 
@@ -100,12 +100,17 @@ class LLMService:
             })
 
             try:
-                response = self.client.models.generate_content(
+                completion = self.client.chat.completions.create(
                     model=model_name,
-                    contents=full_prompt,
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": full_prompt
+                        }
+                    ]
                 )
 
-                text = response.text.strip() if response and response.text else ""
+                text = completion.choices[0].message.content.strip() if completion and completion.choices else ""
                 if not text:
                     continue
 
@@ -141,11 +146,11 @@ class LLMService:
                 err_msg = str(e)
                 err_msg_lower = err_msg.lower()
 
-                if "429" in err_msg or "resource_exhausted" in err_msg_lower or "quota" in err_msg_lower or "rate limit" in err_msg_lower:
+                if "429" in err_msg or "rate limit" in err_msg_lower:
                     event_type = "rate_limit"
                     reason = "429 Rate Limit"
                     msg = f"Failed due to 429 Rate Limit ({model_name})" + (f", loading {next_model} instead..." if next_model else "...")
-                elif "503" in err_msg or "unavailable" in err_msg_lower or "overloaded" in err_msg_lower or "busy" in err_msg_lower or "500" in err_msg:
+                elif "503" in err_msg or "unavailable" in err_msg_lower or "500" in err_msg:
                     event_type = "model_busy"
                     reason = "503 Model Busy"
                     msg = f"Failed due to 503 Model Busy ({model_name})" + (f", loading {next_model} instead..." if next_model else "...")
@@ -167,12 +172,12 @@ class LLMService:
                 })
                 continue
 
-        logger.error(f"[{task_label}] All candidate Gemini models unavailable. Triggering offline summary.")
+        logger.error(f"[{task_label}] All candidate Groq models unavailable. Triggering offline summary.")
         self.emit_event("model_fallback", {
             "model": None,
             "task_label": task_label,
             "progress": 100,
-            "message": f"[{task_label}] All Gemini candidate models unavailable. Showing offline summary."
+            "message": f"[{task_label}] All Groq candidate models unavailable. Showing offline summary."
         })
         return None
 

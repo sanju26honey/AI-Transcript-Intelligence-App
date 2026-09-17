@@ -178,9 +178,9 @@ def get_model_status():
     return jsonify({
         "client_active": llm_service.client is not None,
         "candidate_models": [
-            'gemini-3.6-flash',
-            'gemini-3.8-flash',
-            'gemini-3.5-flash'
+            'openai/gpt-oss-20b',
+            'llama-3.3-70b-versatile',
+            'llama-3.1-8b-instant'
         ],
         "history": llm_service.event_history[-10:]
     })
