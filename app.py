@@ -169,6 +169,8 @@ def upload_transcript():
     except Exception as e:
         return jsonify({"error": f"Failed to parse uploaded transcript: {str(e)}"}), 500
 
+from queue import Empty
+
 @app.route("/api/llm-events", methods=["GET"])
 def llm_events_stream():
     """SSE endpoint streaming real-time Gemini model loading and status toast events."""
@@ -177,9 +179,14 @@ def llm_events_stream():
         try:
             yield f"data: {json.dumps({'type': 'connected', 'data': {'message': 'SSE stream connected'}})}\n\n"
             while True:
-                event = q.get()
-                yield f"data: {json.dumps(event)}\n\n"
-        except GeneratorExit:
+                try:
+                    event = q.get(timeout=10)
+                    yield f"data: {json.dumps(event)}\n\n"
+                except Empty:
+                    yield ": ping\n\n"
+        except (GeneratorExit, Exception):
+            pass
+        finally:
             llm_service.unsubscribe(q)
 
     return Response(stream_with_context(event_stream()), mimetype="text/event-stream")

@@ -13,4 +13,4 @@ COPY . .
 EXPOSE 7860
 
 # Run with Gunicorn
-CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app", "--timeout", "120"]
+CMD ["gunicorn", "-b", "0.0.0.0:7860", "app:app", "--workers", "2", "--threads", "4", "--worker-class", "gthread", "--timeout", "120"]

@@ -1,13 +1,46 @@
 from typing import List, Dict, Optional
+import numpy as np
+import re
 import chromadb
 from chromadb.config import Settings
+from chromadb import EmbeddingFunction, Documents, Embeddings
 from models import TranscriptSegment
+
+class LightweightEmbeddingFunction(EmbeddingFunction):
+    """
+    Ultra-lightweight vector embedding function using hashed n-grams & term frequency.
+    Uses < 2 MB RAM, avoids heavy ONNX downloads, and prevents Render 512MB RAM OOM SIGKILL.
+    """
+    def __init__(self, dim: int = 128):
+        self.dim = dim
+
+    def __call__(self, input: Documents) -> Embeddings:
+        embeddings = []
+        for doc in input:
+            vec = np.zeros(self.dim, dtype=np.float32)
+            tokens = re.findall(r'\w+', doc.lower())
+            for t in tokens:
+                idx = abs(hash(t)) % self.dim
+                vec[idx] += 1.0
+                if len(t) >= 4:
+                    for i in range(len(t) - 2):
+                        sub_idx = abs(hash(t[i:i+3])) % self.dim
+                        vec[sub_idx] += 0.5
+            norm = np.linalg.norm(vec)
+            if norm > 0:
+                vec /= norm
+            embeddings.append(vec.tolist())
+        return embeddings
 
 class TranscriptRAGService:
     def __init__(self):
-        # Initialize in-memory ChromaDB vector collection
+        # Initialize in-memory ChromaDB vector collection with lightweight embedding function
+        self.embedding_fn = LightweightEmbeddingFunction()
         self.client = chromadb.Client(Settings(anonymized_telemetry=False, is_persistent=False))
-        self.collection = self.client.get_or_create_collection(name="hasamex_transcripts")
+        self.collection = self.client.get_or_create_collection(
+            name="hasamex_transcripts",
+            embedding_function=self.embedding_fn
+        )
         self.segment_map: Dict[str, TranscriptSegment] = {}
         self.is_indexed = False
 

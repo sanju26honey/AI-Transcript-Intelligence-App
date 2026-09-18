@@ -126,29 +126,60 @@ function updateThemeToggleUI(isDark) {
 
 async function fetchInitialData() {
     try {
-        // 1. Fetch and render Themes & Disagreements first
-        const themeRes = await fetch('/api/themes?t=' + Date.now());
-        THEMES_DATA = await themeRes.json();
-        renderThemes();
-
-        // 2. Then fetch transcript data and interview guide answers
-        const [txRes, guideRes] = await Promise.all([
-            fetch('/api/transcripts?t=' + Date.now()),
-            fetch('/api/guide-answers?t=' + Date.now())
+        const timestamp = Date.now();
+        const results = await Promise.allSettled([
+            fetch(`/api/themes?t=${timestamp}`).then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            }),
+            fetch(`/api/transcripts?t=${timestamp}`).then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            }),
+            fetch(`/api/guide-answers?t=${timestamp}`).then(r => {
+                if (!r.ok) throw new Error(`HTTP ${r.status}`);
+                return r.json();
+            })
         ]);
 
-        TRANSCRIPTS_DATA = await txRes.json();
-        GUIDE_ANSWERS_DATA = await guideRes.json();
-
-        const keys = Object.keys(TRANSCRIPTS_DATA);
-        if (keys.length > 0 && (!CURRENT_TRANSCRIPT_ID || !TRANSCRIPTS_DATA[CURRENT_TRANSCRIPT_ID])) {
-            CURRENT_TRANSCRIPT_ID = keys[0];
+        if (results[0].status === 'fulfilled') {
+            THEMES_DATA = results[0].value;
+            renderThemes();
+        } else {
+            console.warn('Failed to load themes data:', results[0].reason);
         }
 
-        renderExpertScopeSidebar();
-        renderTranscriptSubtabs();
-        renderGuideAnswers();
-        renderTranscriptViewer(CURRENT_TRANSCRIPT_ID);
+        if (results[1].status === 'fulfilled') {
+            TRANSCRIPTS_DATA = results[1].value;
+            const keys = Object.keys(TRANSCRIPTS_DATA);
+            if (keys.length > 0 && (!CURRENT_TRANSCRIPT_ID || !TRANSCRIPTS_DATA[CURRENT_TRANSCRIPT_ID])) {
+                CURRENT_TRANSCRIPT_ID = keys[0];
+            }
+            renderExpertScopeSidebar();
+            renderTranscriptSubtabs();
+            renderTranscriptViewer(CURRENT_TRANSCRIPT_ID);
+        } else {
+            console.warn('Failed to load transcript data:', results[1].reason);
+        }
+
+        if (results[2].status === 'fulfilled') {
+            GUIDE_ANSWERS_DATA = results[2].value;
+            renderGuideAnswers();
+        } else {
+            console.warn('Failed to load guide answers data:', results[2].reason);
+            const container = document.getElementById('guide-questions-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="glass-panel p-8 text-center border shadow-md rounded-2xl space-y-3">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-500 text-3xl"></i>
+                        <p class="text-sm font-bold text-slate-800 dark:text-slate-200">Failed to load Interview Guide Matrix</p>
+                        <p class="text-xs text-slate-500 font-medium">Server request timed out or returned an error.</p>
+                        <button onclick="fetchInitialData()" class="px-4 py-2 bg-violet-600 text-white rounded-xl text-xs font-bold shadow hover:bg-violet-700 transition">
+                            <i class="fa-solid fa-rotate-right mr-1.5"></i> Retry Loading
+                        </button>
+                    </div>`;
+            }
+        }
     } catch (err) {
         console.error('Failed to load initial application data:', err);
     }
